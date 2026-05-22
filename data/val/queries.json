@@ -1,0 +1,1802 @@
+[
+  {
+    "id": "q_052_s01_idiom_01",
+    "sentence": "Following the controversial healthcare reform, the entire cabinet found themselves in the dock as voters demanded a full explanation for the rising costs.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s01_lit_01",
+    "sentence": "The former minister stood silently in the dock while the high court judge read the long list of corruption charges against him.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s02_idiom_01",
+    "sentence": "Following the team's unexpected losing streak, the veteran head coach was effectively in the dock during the board's emergency performance review.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s02_lit_01",
+    "sentence": "The competitive rowing team left their carbon-fiber shells in the dock after completing their final practice session before the Olympic heats.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s03_idiom_01",
+    "sentence": "The artificial intelligence startup found itself in the dock when critics argued that their facial recognition software displayed significant demographic bias.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s03_lit_01",
+    "sentence": "The technician placed the heavy-duty handheld scanner in the dock to synchronize the warehouse inventory data with the central database.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_052_s04_idiom_01",
+    "sentence": "In the eyes of modern researchers, the explorer’s controversial treatment of indigenous populations is firmly in the dock as historians re-evaluate his legacy.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s04_lit_01",
+    "sentence": "The captured pirate was forced to stand in the dock while the colonial magistrate read the list of charges against him.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s05_idiom_01",
+    "sentence": "After the clinical trial failed, the lead researcher found himself in the dock during the ethics committee's intense questioning about the data.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s05_lit_01",
+    "sentence": "The nurse carefully placed the mobile diagnostic tablet back in the dock so it could charge before the next patient round.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_052_s06_idiom_01",
+    "sentence": "After the museum's controversial acquisition was leaked, the curator found himself in the dock during a heated public debate regarding cultural heritage and ethics.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s06_lit_01",
+    "sentence": "The century-old wooden schooner rested peacefully in the dock while local historians meticulously began restoring its ornate figurehead for the maritime festival.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s07_idiom_01",
+    "sentence": "The studio executives were in the dock as shareholders demanded an explanation for the blockbuster film's catastrophic financial performance.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s07_lit_01",
+    "sentence": "The heavy amplifiers were placed in the dock until the roadies could lift them onto the concert stage.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s08_idiom_01",
+    "sentence": "During the tense staff meeting, the pastry chef stood in the dock as the manager scrutinized the sudden drop in dessert sales and customer satisfaction.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s08_lit_01",
+    "sentence": "The commercial fishing vessel remained in the dock while the crew unloaded hundreds of pounds of Alaskan king crab for the local seafood market.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s09_idiom_01",
+    "sentence": "During the intense fiscal audit, the senior accountant found himself in the dock while the regulators scrutinized every single transaction from the previous year.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s09_lit_01",
+    "sentence": "While inspecting the shipping facility, the director noticed that the largest freighter was still in the dock awaiting its final cargo manifest.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s10_idiom_01",
+    "sentence": "Public opinion has placed the petrochemical giant in the dock for its consistent failure to address the massive oil spill in the delicate coastal ecosystem.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_052_s10_lit_01",
+    "sentence": "The scientific research vessel remained in the dock while the marine biologists analyzed the water samples collected from the Great Barrier Reef.",
+    "idiom": "in the dock",
+    "span": "in the dock",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s01_idiom_01",
+    "sentence": "Despite the recent scandal, the seasoned senator remains in the running for the influential position of Senate Majority Leader.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s01_lit_01",
+    "sentence": "Governor Miller was still in the running when the local charity marathon passed the municipal legislative building yesterday afternoon.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s02_idiom_01",
+    "sentence": "The veteran defenseman is currently in the running for the captaincy after the previous leader was traded to a rival team last week.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s02_lit_01",
+    "sentence": "Because of the heavy rain, only the elite athletes were still in the running itself, struggling through the muddy final leg of the cross-country race.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s03_idiom_01",
+    "sentence": "After the initial evaluation, our lightweight encryption algorithm is still in the running to become the new industry standard for IoT devices.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s03_lit_01",
+    "sentence": "The diagnostic team observed several sensors failing while the high-speed robotics prototype was actually in the running phase of the track test.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s04_idiom_01",
+    "sentence": "During the 1860 convention, Abraham Lincoln was unexpectedly in the running for the nomination despite his relatively limited experience in national politics.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s04_lit_01",
+    "sentence": "Ancient Greek messengers were often in the running for several days, crossing vast distances to deliver critical battle reports to the anxious generals.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s05_idiom_01",
+    "sentence": "After the final board review, the young neurosurgeon remained in the running for the prestigious fellowship at the internationally renowned medical research center.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s05_lit_01",
+    "sentence": "The respiratory therapist monitored the patient's oxygen saturation levels while they were in the running phase of the cardiac rehabilitation program.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s06_idiom_01",
+    "sentence": "The avant-garde documentary about indigenous textiles is currently in the running for the top prize at the International Heritage Film Festival.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s06_lit_01",
+    "sentence": "During the annual Highland Games, several local dancers were also in the running hill-race across the heather-covered moors.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s07_idiom_01",
+    "sentence": "After her breathtaking performance in the indie film, the young actress is definitely in the running for an Oscar nomination.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s07_lit_01",
+    "sentence": "The documentary followed the famous cast while they were in the running of the marathon to raise money for local theaters.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s08_idiom_01",
+    "sentence": "With her innovative fusion menu, the talented chef is finally in the running for the city's most prestigious culinary award.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s08_lit_01",
+    "sentence": "The chef rinsed the fresh herbs in the running water to ensure all the garden soil was completely removed.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s09_idiom_01",
+    "sentence": "After the second round of bidding, our construction firm is fortunately still in the running for the city stadium project.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s09_lit_01",
+    "sentence": "The corporate team leader congratulated every employee who participated in the running race during the annual charity event.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_057_s10_idiom_01",
+    "sentence": "The innovative solar-powered desalination plant is officially in the running for the global prize honoring the most sustainable clean water technologies.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_057_s10_lit_01",
+    "sentence": "The park ranger monitored his pulse while he was in the running phase of his fitness test through the protected forest trails.",
+    "idiom": "in the running",
+    "span": "in the running",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_064_s01_idiom_01",
+    "sentence": "Despite the looming economic crisis, the opposition leader complained that the prime minister would not lift a finger to assist struggling families.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s01_lit_01",
+    "sentence": "To calibrate the new digital ballot box, the election official was instructed to lift a finger and press it against the glass.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_064_s02_idiom_01",
+    "sentence": "The defensive line watched the runner sprint toward the end zone but they did not lift a finger to chase him down.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s02_lit_01",
+    "sentence": "During the rehabilitation session, the injured quarterback was only permitted to lift a finger to gauge his muscle control after the surgery.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s03_idiom_01",
+    "sentence": "Because the cloud infrastructure scales automatically based on demand, the network engineers don't have to lift a finger when traffic spikes occur.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s03_lit_01",
+    "sentence": "Before the diagnostic was complete, the mechanical hand failed to lift a finger due to a critical short circuit in the primary motor.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s04_idiom_01",
+    "sentence": "Despite the desperate cries for help during the burning of the library, the indifferent governor refused to lift a finger to save the records.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s04_lit_01",
+    "sentence": "The medieval scribe was told to lift a finger carefully from the damp parchment after applying the emperor's royal wax seal.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s05_idiom_01",
+    "sentence": "Despite the chaotic scene in the overcrowded emergency room, the weary hospital administrator refused to lift a finger to assist the triage nurses.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s05_lit_01",
+    "sentence": "The neurologist instructed the paralyzed patient to try and lift a finger to assess the extent of nerve regeneration.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s06_idiom_01",
+    "sentence": "Despite the museum's urgent plea for volunteers, many local residents refused to lift a finger to help catalog the deteriorating artifacts from the Ming dynasty.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s06_lit_01",
+    "sentence": "In the traditional Balinese dance, the performer did not lift a finger until the precise moment the rhythm shifted to signify a change in character.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s07_idiom_01",
+    "sentence": "Even though the stage crew was overwhelmed, the lead singer didn't lift a finger to help them move the heavy speakers after the concert.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s07_lit_01",
+    "sentence": "The puppeteer had to lift a finger to pull the thin nylon thread that made the marionette's eye blink.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s08_idiom_01",
+    "sentence": "Despite the massive pile of dirty dishes after the holiday brunch, the head waiter refused to lift a finger to help the exhausted kitchen crew.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s08_lit_01",
+    "sentence": "To test the consistency of the glaze, the pastry chef would gently lift a finger and watch the syrup drip slowly back into the copper pot.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_064_s09_idiom_01",
+    "sentence": "Despite the looming bankruptcy filing, the majority shareholder refused to lift a finger to assist the management team with emergency funding.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s09_lit_01",
+    "sentence": "While demonstrating the touch-sensitive monitor, the salesperson asked the client to lift a finger and gently tap the digital spreadsheet.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s10_idiom_01",
+    "sentence": "Many wealthy nations refuse to lift a finger to help developing countries transition to renewable energy sources despite their massive carbon footprints.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_064_s10_lit_01",
+    "sentence": "The field researcher held her breath and did not lift a finger while the rare hummingbird hovered inches from her hand.",
+    "idiom": "lift a finger",
+    "span": "lift a finger",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s01_idiom_01",
+    "sentence": "Critics accused the ethics committee of choosing to look the other way when several high-ranking officials accepted lavish gifts from foreign lobbyists.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s01_lit_01",
+    "sentence": "During the tense ceasefire negotiations, the prime minister briefly had to look the other way as a camera flash went off directly beside him.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s02_idiom_01",
+    "sentence": "The league officials were accused of choosing to look the other way when the star player violated the strict substance abuse policy.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s02_lit_01",
+    "sentence": "The goalkeeper had to look the other way as the stadium lights suddenly flickered and shone directly into his eyes.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s03_idiom_01",
+    "sentence": "The lead developer decided to look the other way when he noticed the minor security vulnerability in the legacy software code.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s03_lit_01",
+    "sentence": "When the technician adjusted the high-intensity laser, he had to look the other way to protect his eyes from the sudden glare.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s04_idiom_01",
+    "sentence": "Despite evidence of smuggling along the silk road, local officials were often paid handsomely to look the other way while illegal caravans passed through the gates.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s04_lit_01",
+    "sentence": "During the triumphal procession in ancient Rome, the conquered king was forced to look the other way as dust and debris were thrown into the air beside him.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s05_idiom_01",
+    "sentence": "Despite witnessing the nurse's recurring charting errors, the supervisor chose to look the other way rather than initiate a formal disciplinary review process.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s05_lit_01",
+    "sentence": "While the surgical resident administered the local anesthetic, he suggested that the young patient look the other way to minimize any unnecessary anxiety.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s06_idiom_01",
+    "sentence": "Local authorities decided to look the other way when the community organized their unsanctioned street festival to celebrate their ancestral roots.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s06_lit_01",
+    "sentence": "During the traditional harvest ritual, participants were instructed to look the other way as smoke from the ceremonial fire billowed toward them.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s07_idiom_01",
+    "sentence": "The festival organizers chose to look the other way when the headline act arrived late, fearing that a strict penalty might cause the band to cancel.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s07_lit_01",
+    "sentence": "The director instructed the actors to look the other way during the scene so they would not see the monster until the very last moment.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s08_idiom_01",
+    "sentence": "During the chaotic lunch rush, the floor manager decided to look the other way when a server forgot to charge for a small side dish.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s08_lit_01",
+    "sentence": "Intense heat radiated from the open brick oven, causing the pizza maker to look the other way as he rotated the bubbling margherita pie.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s09_idiom_01",
+    "sentence": "The regional manager was accused of being complicit because he chose to look the other way while his sales team engaged in unethical practices.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s09_lit_01",
+    "sentence": "During the open-plan office tour, the CEO had to look the other way when a bright reflection from a nearby glass wall caught his eyes.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_065_s10_idiom_01",
+    "sentence": "Despite clear evidence of toxic runoff into the stream, the corrupt inspector chose to look the other way for a bribe.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_065_s10_lit_01",
+    "sentence": "The birdwatcher had to look the other way when sunlight suddenly reflected off a nearby stream and flashed into his eyes.",
+    "idiom": "look the other way",
+    "span": "look the other way",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_067_s01_idiom_01",
+    "sentence": "After the controversial vote was announced, the embattled senator decided it was time to make tracks before the reporters could surround his office.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s01_lit_01",
+    "sentence": "The municipal planning committee decided to use heavy equipment to make tracks through the snowy field so that rural voters could reach the polling station.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_067_s02_idiom_01",
+    "sentence": "Once the final whistle blew, the disappointed fans decided to make tracks before the stadium traffic became completely unbearable.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s02_lit_01",
+    "sentence": "The cross-country skier was the first to make tracks on the pristine, untouched snow covering the Olympic competition course.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s03_idiom_01",
+    "sentence": "After the keynote presentation ended, the lead software developers decided to make tracks for the airport to catch their return flights.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s03_lit_01",
+    "sentence": "The autonomous rover began to make tracks across the lunar surface simulation area while testing its high-traction wheel design.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s04_idiom_01",
+    "sentence": "After the royal guards discovered the plot, the conspirators decided to make tracks for the border before the castle gates were locked.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s04_lit_01",
+    "sentence": "The heavy pioneer wagons had to make tracks across the soft soil of the uncharted plains while heading toward the Pacific coast.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s05_idiom_01",
+    "sentence": "Once the emergency surgery was successfully completed, the exhausted resident decided to make tracks before the next round of trauma arrivals began.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s05_lit_01",
+    "sentence": "For a precise gait analysis, the podiatrist required the patient to make tracks across the pressurized walkway to detect subtle foot strike abnormalities.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_067_s06_idiom_01",
+    "sentence": "As soon as the elaborate tea ceremony concluded, the busy diplomat had to make tracks to attend the international arts gala across town.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s06_lit_01",
+    "sentence": "The indigenous hunter demonstrated how to make tracks in the red desert sand to teach the children about traditional tracking methods.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s07_idiom_01",
+    "sentence": "Once the final curtain fell, the shy theater lead had to make tracks to avoid the crowd of reporters waiting at the stage door.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s07_lit_01",
+    "sentence": "To create a realistic effect, the set designer watched the stuntman make tracks across the damp sand for the pirate movie's opening sequence.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s08_idiom_01",
+    "sentence": "With the dinner rush approaching, the catering manager knew she had to make tracks to the warehouse for more supplies.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s08_lit_01",
+    "sentence": "During the chaotic brunch service, a stray kitten managed to make tracks in the spilled flour near the bakery's back door.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_067_s09_idiom_01",
+    "sentence": "After closing the high-stakes merger, the executive realized he needed to make tracks to the airport for his international board meeting.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s09_lit_01",
+    "sentence": "The heavy equipment manufacturer demonstrated how their new industrial tractor would make tracks with their logo across the construction site soil.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_067_s10_idiom_01",
+    "sentence": "As the massive forest fire approached the ridge, the team of wildlife biologists decided it was time to make tracks for the safety of the valley.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_067_s10_lit_01",
+    "sentence": "The heavy logging equipment will make tracks deep into the soft soil of the protected wetland if we don't halt the operation.",
+    "idiom": "make tracks",
+    "span": "make tracks",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s01_idiom_01",
+    "sentence": "The senator decided to play for time during the tense committee hearing by requesting a lengthy, line-by-line reading of the entire proposed legislation.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s01_lit_01",
+    "sentence": "During the congressional charity softball tournament, the press secretary was asked to play for Time, the team representing the major political magazine.",
+    "idiom": "play for time",
+    "span": "play for Time",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s02_idiom_01",
+    "sentence": "Realizing they were ahead by one goal, the soccer team started to play for time by passing the ball around their own defense.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s02_lit_01",
+    "sentence": "In the gymnasium, the children play for time on the fancy equipment, earning it by winning several short relay races.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s03_idiom_01",
+    "sentence": "To play for time, the startup released a series of cryptic teasers while their developers worked feverishly to fix the application's broken core features.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s03_lit_01",
+    "sentence": "The experimental robot was programmed to play for time intervals that simulated the speed of human decision-making processes.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s04_idiom_01",
+    "sentence": "The Roman general decided to play for time, delaying the final assault on the walled city until his legions could finish constructing their massive siege towers.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s04_lit_01",
+    "sentence": "During the village festival, the young knights would play for time tokens that allowed them extra hours of practice in the royal tilting yard.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s05_idiom_01",
+    "sentence": "Dr. Aris chose to play for time with conservative treatments, hoping the patient's condition would improve before they had to consider risky surgery.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s05_lit_01",
+    "sentence": "The lab assistant decided to play for time marks on the microscopic recording to pinpoint the exact second the chemical reaction occurred.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s06_idiom_01",
+    "sentence": "The heritage committee chose to play for time by requesting more documentation, hoping the developers would lose interest in the historic site's commercial redevelopment.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s06_lit_01",
+    "sentence": "The street musician agreed to play for time periods shorter than an hour, as the local festival regulations prohibited long-duration performances in the plaza.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s07_idiom_01",
+    "sentence": "When the main act was delayed backstage, the warm-up comedian had to play for time by extending his set with crowd work.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s07_lit_01",
+    "sentence": "The theater director asked the percussionist to play for time cues that were marked on the digital script during the dress rehearsal.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s08_idiom_01",
+    "sentence": "The waiter tried to play for time by meticulously explaining the source of every ingredient while the kitchen frantically prepared the missing entree.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s08_lit_01",
+    "sentence": "In the new culinary video game, you must play for time increments to ensure your virtual restaurant stays open during the busy lunch rush.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s09_idiom_01",
+    "sentence": "The procurement officer decided to play for time by requesting additional product specifications while waiting for the budget approval from the board.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s09_lit_01",
+    "sentence": "The professional pianist will play for time segments of forty-five minutes to ensure the corporate lobby remains pleasant for arriving clients.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_088_s10_idiom_01",
+    "sentence": "By requesting numerous additional ecological impact reports, the logging company managed to play for time and continue their operations throughout the nesting season.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_088_s10_lit_01",
+    "sentence": "At the solar energy fair, the participants can play for time credits that are used to power a model sustainable city.",
+    "idiom": "play for time",
+    "span": "play for time",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s01_idiom_01",
+    "sentence": "When asked about the missing infrastructure funds, the spokesperson gave the press a complicated song and dance to distract from the audit.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s01_lit_01",
+    "sentence": "To entertain the visiting delegates, the local council organized a traditional song and dance performance at the city hall.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s02_idiom_01",
+    "sentence": "When asked about the sudden trade, the team manager gave the media a huge song and dance about restructuring for the future.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s02_lit_01",
+    "sentence": "During the halftime show of the championship bowl, the performers performed a choreographed song and dance that thrilled the entire stadium.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s03_idiom_01",
+    "sentence": "When the database crashed, the chief engineer went through a long song and dance about server maintenance rather than admitting the bug.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s03_lit_01",
+    "sentence": "During the hardware demo, the humanoid robot executed a perfectly synchronized song and dance routine to showcase its latest hydraulic actuators.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s04_idiom_01",
+    "sentence": "The Roman senator went through a whole song and dance about tradition to avoid discussing his controversial tax proposal during the council meeting.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s04_lit_01",
+    "sentence": "During the Renaissance, the royal court enjoyed a lavish song and dance choreographed specifically for the Queen's birthday celebration.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s05_idiom_01",
+    "sentence": "The pharmaceutical representative went into a long song and dance about the new drug's benefits while ignoring the concerning data on side effects.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s05_lit_01",
+    "sentence": "To encourage the children, the physical therapist organized a brief song and dance to help them practice their balance and vocal exercises.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s06_idiom_01",
+    "sentence": "The gallery owner gave me a whole song and dance about why the exhibition was delayed instead of just being honest.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s06_lit_01",
+    "sentence": "At the folk festival, the troupe performed a traditional song and dance that had been passed down through their community for generations.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s07_idiom_01",
+    "sentence": "Disappointed fans were tired of hearing a predictable song and dance whenever the concert organizers failed to provide adequate security.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s07_lit_01",
+    "sentence": "Before the curtain fell, the entire cast performed a festive song and dance that left the theater audience cheering for an encore.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s08_idiom_01",
+    "sentence": "After we complained about the cold soup, the waiter went into an elaborate song and dance about the malfunctioning heating lamps.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s08_lit_01",
+    "sentence": "The new dinner theater combined gourmet French cuisine with a spectacular song and dance that lasted throughout the three-course meal.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s09_idiom_01",
+    "sentence": "Instead of addressing the falling margins directly, the CEO gave the skeptical investors a lengthy song and dance about future expansion plans.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s09_lit_01",
+    "sentence": "The creative agency hired a professional troupe to perform a high-energy song and dance during the opening of the annual shareholder gala.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_097_s10_idiom_01",
+    "sentence": "The energy conglomerate gave the environmental activists a whole song and dance about why their carbon reduction targets had not been met this fiscal year.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_097_s10_lit_01",
+    "sentence": "To celebrate the opening of the new bird sanctuary, the local indigenous group performed a traditional song and dance honoring the spirits of the land.",
+    "idiom": "song and dance",
+    "span": "song and dance",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s01_idiom_01",
+    "sentence": "Rumors circulated that the third-party challenger was paid to take a dive during the final televised debate to ensure the incumbent's victory.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s01_lit_01",
+    "sentence": "The city council members watched as the environmental activist prepared to take a dive into the polluted river to protest the new industrial permit.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_100_s02_idiom_01",
+    "sentence": "Critics suspected the veteran boxer decided to take a dive in the fourth round to help the gamblers who bet against him.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s02_lit_01",
+    "sentence": "The Olympic swimmer prepared to take a dive into the pool to begin her final attempt at the gold medal.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s03_idiom_01",
+    "sentence": "After the controversial CEO resigned, the tech company's stock price started to take a dive, losing ten percent in just one hour.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s03_lit_01",
+    "sentence": "Engineers watched the high-speed camera footage as the experimental drone prepared to take a dive into the salt water for its durability test.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s04_idiom_01",
+    "sentence": "Rumors persisted for decades that the heavyweight champion was forced by the local syndicate to take a dive during the 1920 title match.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s04_lit_01",
+    "sentence": "During the 1960 expedition, the marine archaeologist had to take a dive into the Mediterranean to recover the sunken Roman amphorae.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s05_idiom_01",
+    "sentence": "The head cardiologist grew concerned when the patient's heart rate started to take a dive following the complex arterial stent placement procedure.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s05_lit_01",
+    "sentence": "During the clinical assessment, the sports therapist watched the swimmer take a dive into the pool to evaluate his chronic shoulder pain during impact.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s06_idiom_01",
+    "sentence": "Elderly spectators were outraged when the village champion seemed to take a dive during the traditional wrestling match at the spring equinox festival.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s06_lit_01",
+    "sentence": "Young men in the village take a dive into the freezing river every January to prove their bravery during the ancient purification ritual.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s07_idiom_01",
+    "sentence": "The reality show producers were accused of telling the frontrunner to take a dive to make the competition more exciting.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s07_lit_01",
+    "sentence": "For the music video's climax, the pop star was asked to take a dive into a large tank filled with roses.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s08_idiom_01",
+    "sentence": "Rumors circulated that the disgraced pastry chef was paid to take a dive during the final round of the televised baking championship.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s08_lit_01",
+    "sentence": "The head chef decided to take a dive into the cool hotel pool after finishing a grueling fourteen-hour shift in the sweltering kitchen.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_100_s09_idiom_01",
+    "sentence": "Investors panicked when they saw the tech giant's stock prices take a dive following the disappointing quarterly earnings report.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s09_lit_01",
+    "sentence": "The CEO of the swimwear company decided to take a dive into the hotel's infinity pool during the grand opening ceremony.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_100_s10_idiom_01",
+    "sentence": "Local biodiversity levels began to take a dive after the unexpected chemical runoff from the factory contaminated the freshwater stream.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_100_s10_lit_01",
+    "sentence": "The marine biologist prepared to take a dive into the lagoon to assess the health of the newly planted coral.",
+    "idiom": "take a dive",
+    "span": "take a dive",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s01_idiom_01",
+    "sentence": "Voters felt the incumbent administration was trying to take them for a ride by promising tax cuts that never actually materialized.",
+    "idiom": "take someone for a ride",
+    "span": "take them for a ride",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s01_lit_01",
+    "sentence": "During the local parade, the governor offered to take the young student council members for a ride in his official open-top limousine.",
+    "idiom": "take someone for a ride",
+    "span": "take the young student council members for a ride",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s02_idiom_01",
+    "sentence": "Some unscrupulous club owners might try to take a veteran pitcher for a ride by withholding promised performance bonuses during contract negotiations.",
+    "idiom": "take someone for a ride",
+    "span": "take a veteran pitcher for a ride",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s02_lit_01",
+    "sentence": "During the victory parade, the star quarterback decided to take a disabled fan for a ride on the team's decorative float.",
+    "idiom": "take someone for a ride",
+    "span": "take a disabled fan for a ride",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s03_idiom_01",
+    "sentence": "The unscrupulous crypto startup founders managed to take many early investors for a ride by fabricating their blockchain performance metrics during the pitch.",
+    "idiom": "take someone for a ride",
+    "span": "take many early investors for a ride",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s03_lit_01",
+    "sentence": "The prototype autonomous shuttle will take the software engineer for a ride around the technology park to test the new lidar sensors.",
+    "idiom": "take someone for a ride",
+    "span": "take the software engineer for a ride",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s04_idiom_01",
+    "sentence": "During the South Sea Bubble of 1720, greedy directors managed to take thousands of gullible English investors for a ride by inflating share prices artificially.",
+    "idiom": "take someone for a ride",
+    "span": "take thousands of gullible English investors for a ride",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s04_lit_01",
+    "sentence": "In ancient Rome, a charioteer might take a curious citizen for a ride around the Circus Maximus to demonstrate the speed of his horses.",
+    "idiom": "take someone for a ride",
+    "span": "take a curious citizen for a ride",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s05_idiom_01",
+    "sentence": "Dr. Simmons suspected that the pharmaceutical representative was trying to take the clinic for a ride with exaggerated claims about the new antibiotic.",
+    "idiom": "take someone for a ride",
+    "span": "take the clinic for a ride",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s05_lit_01",
+    "sentence": "To help with his mobility assessment, the physical therapist will take the elderly veteran for a ride in the specialized transport chair.",
+    "idiom": "take someone for a ride",
+    "span": "take the elderly veteran for a ride",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s06_idiom_01",
+    "sentence": "The unscrupulous street vendor tried to take the naive collector for a ride by claiming the mass-produced masks were authentic ancestral relics.",
+    "idiom": "take someone for a ride",
+    "span": "take the naive collector for a ride",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s06_lit_01",
+    "sentence": "During the annual harvest festival, the village elder decided to take the curious tourists for a ride in his antique wooden cart.",
+    "idiom": "take someone for a ride",
+    "span": "take the curious tourists for a ride",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s07_idiom_01",
+    "sentence": "Fans were devastated to discover that the fraudulent ticket website had taken them for a ride, selling thousands of counterfeit passes for the sold-out stadium tour.",
+    "idiom": "take someone for a ride",
+    "span": "taken them for a ride",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s07_lit_01",
+    "sentence": "During the backstage tour, the stage manager offered to take the VIP guests for a ride on the moving platform used in the grand finale.",
+    "idiom": "take someone for a ride",
+    "span": "take the VIP guests for a ride",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s08_idiom_01",
+    "sentence": "The patrons soon discovered the luxury steakhouse was trying to take them for a ride by charging premium prices for cheap cuts of meat.",
+    "idiom": "take someone for a ride",
+    "span": "take them for a ride",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s08_lit_01",
+    "sentence": "The orchard owner offered to take the food critic for a ride through the groves to sample the early summer harvest.",
+    "idiom": "take someone for a ride",
+    "span": "take the food critic for a ride",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s09_idiom_01",
+    "sentence": "Angry shareholders accused the board of directors of trying to take them for a ride regarding the company's actual debt obligations.",
+    "idiom": "take someone for a ride",
+    "span": "take them for a ride",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s09_lit_01",
+    "sentence": "The executive assistant decided to take the international clients for a ride across the business district to showcase their latest infrastructure projects.",
+    "idiom": "take someone for a ride",
+    "span": "take the international clients for a ride",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_101_s10_idiom_01",
+    "sentence": "Local activists claimed the energy company was trying to take them for a ride by promoting their unsustainable natural gas project as renewable.",
+    "idiom": "take someone for a ride",
+    "span": "take them for a ride",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_101_s10_lit_01",
+    "sentence": "The conservationist decided to take the young volunteer for a ride in the electric jeep to show him the newly reforested area.",
+    "idiom": "take someone for a ride",
+    "span": "take the young volunteer for a ride",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_113_s01_idiom_01",
+    "sentence": "After the ethics scandal, the Prime Minister's personal finances were placed under the microscope by the independent oversight committee during the hearing.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Politics",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s01_lit_01",
+    "sentence": "Forensic scientists placed the disputed ballot under the microscope to determine if the signature had been altered by the campaign workers.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Politics",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s02_idiom_01",
+    "sentence": "The referee's decision-making was under the microscope after the disputed penalty call in the final minutes changed the outcome of the championship.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Sport",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s02_lit_01",
+    "sentence": "The equipment manager, Sarah, examined the small tear in the team's high-tech racing sail under the microscope to ensure structural integrity.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Sport",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_113_s03_idiom_01",
+    "sentence": "After the data breach, the company's encryption protocols were put under the microscope by third-party security auditors for several weeks.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Technology",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s03_lit_01",
+    "sentence": "The lead engineer carefully placed the prototype microchip under the microscope to inspect the gold wiring for any manufacturing defects.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Technology",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s04_idiom_01",
+    "sentence": "Every decision made by the commander during the Battle of Waterloo has been placed under the microscope by modern military historians for centuries.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "History",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s04_lit_01",
+    "sentence": "Archeologists placed the ancient papyrus fragment under the microscope to determine if the ink contained mineral pigments from the Roman era.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "History",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s05_idiom_01",
+    "sentence": "The hospital's patient safety protocols were put under the microscope following a series of medication errors in the intensive care unit.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Medicine",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s05_lit_01",
+    "sentence": "The lab technician carefully adjusted the focus after placing the thin biopsy section under the microscope for immediate pathological examination.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Medicine",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s06_idiom_01",
+    "sentence": "Traditional folk festivals are increasingly under the microscope as younger generations question the environmental impact and ethical treatment of animals during these events.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Culture",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s06_lit_01",
+    "sentence": "The textile conservator carefully placed the ancient silk fragment under the microscope to examine the intricate weaving patterns used by the Han dynasty.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Culture",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s07_idiom_01",
+    "sentence": "After the superstar singer missed her cue, critics put every second of her live performance under the microscope on social media.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Entertainment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s07_lit_01",
+    "sentence": "To create believable visual effects, the makeup artist examined the skin texture under the microscope before sculpting the prosthetic mask.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Entertainment",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s08_idiom_01",
+    "sentence": "Every single ingredient in the new vegan bistro is under the microscope as critics evaluate the restaurant's commitment to locally sourced produce.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Food",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s08_lit_01",
+    "sentence": "The quality control specialist placed a sample of the sourdough starter under the microscope to check for any unwanted bacterial growth.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Food",
+    "usage": "literal",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s09_idiom_01",
+    "sentence": "Regional regulators kept the bank's lending practices under the microscope to ensure compliance with the new fair housing investment guidelines.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Business",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s09_lit_01",
+    "sentence": "A pharmaceutical manufacturing expert examined the chemical compound under the microscope to verify its purity before starting the mass production phase.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Business",
+    "usage": "literal",
+    "is_gold": true
+  },
+  {
+    "id": "q_113_s10_idiom_01",
+    "sentence": "Following the recent oil spill, the energy company's safety protocols and environmental impact statements were placed under the microscope by international regulatory agencies.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Environment",
+    "usage": "idiomatic",
+    "is_gold": false
+  },
+  {
+    "id": "q_113_s10_lit_01",
+    "sentence": "The environmental biologist carefully placed the stagnant pond water sample under the microscope to identify the presence of invasive microalgae.",
+    "idiom": "under the microscope",
+    "span": "under the microscope",
+    "subject": "Environment",
+    "usage": "literal",
+    "is_gold": true
+  }
+]
