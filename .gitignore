@@ -5,9 +5,10 @@ results/
 # Fine-tuned model checkpoints
 /models/
 
-# API keys
+# API keys and local settings
 keys.yaml
 .env
+.claude/settings.local.json
 
 # Python
 __pycache__/
