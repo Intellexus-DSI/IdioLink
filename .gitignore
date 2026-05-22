@@ -3,7 +3,7 @@ results/
 !results/README.md
 
 # Fine-tuned model checkpoints
-models/
+/models/
 
 # API keys
 keys.yaml
