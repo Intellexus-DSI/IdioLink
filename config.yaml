@@ -1,0 +1,49 @@
+seed: 42
+device: auto  # auto, cuda, mps, cpu
+debug: false
+debug_samples: 5
+
+data:
+  test_dir: data/test
+  train_dir: data/train
+  val_dir: data/val
+
+retrieval:
+  top_k: 100
+
+evaluation:
+  metrics: [r_precision, ndcg@10]
+
+model: BAAI/bge-m3
+
+experiment:
+  query_mode: sentence  # sentence, span, instruction_sentence, instruction_span
+  instruction_template: null
+
+bm25:
+  k1: 0.9
+  b: 0.4
+  query_mode: sentence
+  tune_on_val: true
+  k1_grid: [0.6, 0.9, 1.2, 1.5, 2.0]
+  b_grid: [0.2, 0.4, 0.6, 0.75, 0.9]
+  tune_metric: ndcg@10
+
+training:
+  models:
+    - sentence-transformers/all-MiniLM-L6-v2
+    - facebook/drama-1b
+    - intfloat/e5-base-v2
+    - BAAI/bge-m3
+    - Qwen/Qwen3-Embedding-0.6B
+  modes: [sentence, span, instruction_sentence, instruction_span]
+  seeds: [42, 43, 44]
+  batch_size: 32
+  max_epochs: 10
+  learning_rate: 2.0e-5
+  warmup_steps: 100
+  temperature: 0.05
+  early_stopping_patience: 3
+  early_stopping_metric: ndcg@10
+
+results_dir: results
