@@ -306,10 +306,10 @@ Data: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ---
 
-## Dataset Card Authors
+## Authors
 
 Kai Golan Hashiloni et al. ([Intellexus Project](https://intellexus.net/))
 
-## 📫 Dataset Card Contact
+## 📫 Contact
 
 For questions or contributions: [kai.golanhashiloni@post.runi.ac.il](mailto:kai.golanhashiloni@post.runi.ac.il?subject=IdioLink) · [daniel.fadlon@post.runi.ac.il](mailto:daniel.fadlon@post.runi.ac.il?subject=IdioLink), [daniel.fadlon@post.runi.ac.il](mailto:daniel.fadlon@post.runi.ac.il?subject=IdioLink)
