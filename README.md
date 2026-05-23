@@ -1,17 +1,20 @@
 # IdioLink: Retrieving Meaning Beyond Words Across Idiomatic and Literal Expressions
 
+**arXiv 2025** · [[Paper]](https://arxiv.org/abs/2605.22247) · [[Dataset (HuggingFace)](https://huggingface.co/datasets/Intellexus/IdioLink)]
+
 A retrieval benchmark evaluating whether embedding models can bridge idiomatic and literal expressions — matching queries to documents that share the same conceptual meaning regardless of figurative vs. literal usage.
 
 **107 idioms | 10,700 documents | 2,140 queries | 24 models | 4 query configurations**
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 git clone <repo-url>
 cd IdioLink
 pip install -r requirements.txt
+python download_data.py
 python run_dense.py --model sentence-transformers/all-MiniLM-L6-v2 --query_mode sentence
 ```
 
@@ -21,7 +24,7 @@ Expected output: R-Precision and nDCG@10 on the test set (1,500 queries, 7,500 d
 
 ---
 
-## Skills (Slash Commands)
+## 🛠️ Skills (Slash Commands)
 
 This repo ships with Claude Code skills for streamlined experiment workflows. Type `/` in Claude Code to see them.
 
@@ -39,7 +42,7 @@ Skills are defined in `.claude/skills/` and work for any collaborator who clones
 
 ---
 
-## Benchmark Overview
+## 📋 Benchmark Overview
 
 **Research question:** Can embedding models retrieve documents that share conceptual meaning with a query containing a potentially idiomatic expression (PIE), regardless of literal vs. figurative usage?
 
@@ -66,7 +69,7 @@ Skills are defined in `.claude/skills/` and work for any collaborator who clones
 
 ---
 
-## Dataset
+## 📁 Dataset
 
 | Split | PIEs | Documents | Queries |
 |-------|------|-----------|---------|
@@ -77,11 +80,12 @@ Skills are defined in `.claude/skills/` and work for any collaborator who clones
 
 - 10 subject domains (Politics, Sport, Business, Technology, Science, Education, Health, Entertainment, Environment, Daily Life)
 - Quality tiers: gold (human-verified) and silver (LLM-validated)
+- Dataset on HuggingFace: [Intellexus/IdioLink](https://huggingface.co/datasets/Intellexus/IdioLink)
 - See [`data/README.md`](data/README.md) for full schema documentation
 
 ---
 
-## Experiment Configurations
+## ⚙️ Experiment Configurations
 
 Four zero-shot query configurations. Documents are **always indexed as full sentences**; only query encoding changes.
 
@@ -101,7 +105,7 @@ Plus:
 
 ---
 
-## Running Experiments
+## 🏃 Running Experiments
 
 ### BM25 Baseline
 ```bash
@@ -142,7 +146,7 @@ All CLI arguments override values from `config.yaml`.
 
 ---
 
-## Main Results
+## 📊 Main Results
 
 *Results will be updated upon paper publication. Run `python run_all.py` to reproduce.*
 
@@ -177,7 +181,7 @@ All CLI arguments override values from `config.yaml`.
 
 ---
 
-## Fine-Tuning
+## 🔧 Fine-Tuning
 
 **Models:** SBERT, DRAMA-1B, E5-base-v2, BGE-M3, Qwen3-Embedding-0.6B
 
@@ -195,7 +199,7 @@ python run_fine_tune.py --model BAAI/bge-m3 --mode span --seeds 42 43 44
 
 ---
 
-## Reproduction Workflow
+## 🔬 Reproduction Workflow
 
 Full paper reproduction in 4 steps:
 
@@ -223,7 +227,7 @@ Or use the skill: `/reproduce-paper`
 
 ---
 
-## Model Registry
+## 🗂️ Model Registry
 
 All 24 evaluated models:
 
@@ -256,7 +260,7 @@ All 24 evaluated models:
 
 ---
 
-## Data Generation
+## 🏗️ Data Generation
 
 The benchmark data is pre-generated in `data/`. To reproduce the dataset from scratch (requires Gemini API key):
 
@@ -269,22 +273,43 @@ See [`data_generation/README.md`](data_generation/README.md) for full instructio
 
 ---
 
-## Citation
+## 📜 Citation
+
+If you use IdioLink in your research, please cite:
+
+**BibTeX:**
 
 ```bibtex
-@article{idiolink2025,
+@misc{hashiloni2026idiolinkretrievingmeaningwords,
   title={IdioLink: Retrieving Meaning Beyond Words Across Idiomatic and Literal Expressions},
-  author={TBD},
-  journal={arXiv preprint},
-  year={2025},
-  url={https://arxiv.org/abs/XXXX.XXXXX}
+  author={Kai Golan Hashiloni and Daniel Fadlon and Lior Livyatan and Ofri Hefetz and Jiahuan Pei and Kfir Bar},
+  year={2026},
+  eprint={2605.22247},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2605.22247},
 }
 ```
+
+**APA:**
+
+Hashiloni, K. G., Fadlon, D., Livyatan, L., Hefetz, O., Pei, J., & Bar, K. (2026). *IdioLink: Retrieving meaning beyond words across idiomatic and literal expressions*. arXiv. https://arxiv.org/abs/2605.22247
 
 *Paper under review. Citation will be updated upon publication.*
 
 ---
 
-## License
+## 📄 License
 
-This project is licensed under the Apache License 2.0 — see [LICENSE](LICENSE) for details.
+Code: Apache 2.0. See [LICENSE](LICENSE).  
+Data: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+---
+
+## Dataset Card Authors
+
+Kai Golan Hashiloni et al. ([Intellexus Project](https://intellexus.net/))
+
+## 📫 Dataset Card Contact
+
+For questions or contributions: [kai.golanhashiloni@post.runi.ac.il](mailto:kai.golanhashiloni@post.runi.ac.il?subject=IdioLink) · [daniel.fadlon@post.runi.ac.il](mailto:daniel.fadlon@post.runi.ac.il?subject=IdioLink), [daniel.fadlon@post.runi.ac.il](mailto:daniel.fadlon@post.runi.ac.il?subject=IdioLink)

@@ -37,6 +37,11 @@ Thumbs.db
 # Weights & Biases
 wandb/
 
+# Data files (downloaded from HuggingFace via download_data.py)
+data/train/
+data/val/
+data/test/
+
 # Large data files
 *.zip
 *.tar.gz
