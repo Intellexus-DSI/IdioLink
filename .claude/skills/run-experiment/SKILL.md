@@ -25,6 +25,6 @@ Run a single experiment for: $ARGUMENTS
 
 4. **Run the experiment** and display the output.
 
-5. **Show results** — read the output metrics file at `results/zero_shot/<model_slug>/<mode>/metrics.json` and display R-Precision and nDCG@10.
+5. **Show results** — read the output metrics file at `results/zero_shot/<model_slug>/<mode>/metrics.json` and display R-Precision and nDCG@10. If the file also contains `by_usage` (literal/idiomatic) or `by_subject` splits, show those too — they're the diagnostic breakdowns added by the evaluator.
 
 6. If the model fails to load (OOM, missing dependencies), suggest `/debug-model <model>` to diagnose.
