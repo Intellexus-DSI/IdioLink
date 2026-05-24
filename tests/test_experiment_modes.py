@@ -10,6 +10,7 @@ sys.modules.setdefault("sentence_transformers", MagicMock())
 sys.modules.setdefault("transformers", MagicMock())
 
 import run_all
+from idiolink.models import encode_helpers
 from idiolink.utils import IdiomQuery
 
 
@@ -84,7 +85,7 @@ def test_span_mode_uses_late_chunking_with_full_query_context(monkeypatch):
         })
         return np.ones((len(documents), 3), dtype=np.float32)
 
-    monkeypatch.setattr(run_all, "late_chunk_encode", fake_late_chunk_encode)
+    monkeypatch.setattr(encode_helpers, "late_chunk_encode", fake_late_chunk_encode)
 
     queries, doc_sentences, docs = _fixture_data()
     model = RecordingModel()
@@ -128,7 +129,7 @@ def test_instruction_span_formats_queries_before_late_chunking(monkeypatch):
         })
         return np.ones((len(documents), 3), dtype=np.float32)
 
-    monkeypatch.setattr(run_all, "late_chunk_encode", fake_late_chunk_encode)
+    monkeypatch.setattr(encode_helpers, "late_chunk_encode", fake_late_chunk_encode)
 
     queries, doc_sentences, docs = _fixture_data()
     model = RecordingModel()
