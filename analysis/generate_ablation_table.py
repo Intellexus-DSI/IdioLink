@@ -131,7 +131,7 @@ def main():
         keep = sorted(ABLATION_PRESETS[slug])
         print(f"  {slug}: keep {keep}")
 
-    assets_dir = Path("assets")
+    assets_dir = Path("assets") / "ablation"
     for mode in MODES:
         print_mode_table(mode, models, lookup)
         save_per_mode_csv(mode, models, lookup, assets_dir)
