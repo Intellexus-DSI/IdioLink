@@ -129,11 +129,32 @@ python run_all.py --debug                  # smoke test (5 queries)
 python run_all.py --models BAAI/bge-m3 intfloat/e5-base-v2  # subset
 ```
 
+### Index-Composition Ablation
+
+`run_ablation.py` runs the two-preset ablation (`lit_sim_sense` and `lit_idiom`) across the model matrix. It is resumable: per-(preset, model, mode) `metrics.json` files are written atomically, and re-running skips combos that already exist on disk. After every model, the aggregated CSV is rebuilt from disk so partial runs are always consistent.
+
+```bash
+python run_ablation.py                                # all <7B models × both presets × 4 modes
+python run_ablation.py --debug                        # smoke test (5 queries)
+python run_ablation.py --models BAAI/bge-m3
+python run_ablation.py --presets lit_idiom
+python run_ablation.py --no_bm25                      # skip BM25 baseline
+python run_ablation.py --force                        # recompute even if metrics exist
+```
+
+Two presets:
+- `lit_sim_sense` — drop idiomatic docs (keep literal + simplification + sense)
+- `lit_idiom` — drop simplification + sense paraphrases (keep literal + idiomatic)
+
+Results land under `results/ablation/<preset>/{<model_slug>|bm25}/<mode>/metrics.json` and the rebuilt aggregate is `results/ablation/full_results.csv`. For one-off ad-hoc ablations on a single (model, mode), `run_dense.py` and `run_bm25.py` accept the same `--index_filter <preset|csv-list>` flag and write to the same directory layout.
+
 ### Output Structure
 ```
 results/
 ├── zero_shot/{model_slug}/{mode}/metrics.json
 ├── bm25/{mode}/metrics.json
+├── ablation/{preset}/{model_slug}/{mode}/metrics.json
+├── ablation/full_results.csv
 ├── fine_tuning/{model_slug}/{mode}/seed_{N}/metrics.json
 └── full_results.csv
 ```
@@ -217,6 +238,9 @@ python analysis/generate_zero_shot_table.py
 python analysis/generate_finetuning_table.py
 python analysis/generate_dataset_stats.py
 python analysis/plot_performance.py
+python analysis/generate_variant_tables.py    # per-variant table with by_usage and by_subject splits
+python analysis/generate_ablation_table.py    # per-mode ablation tables (requires run_ablation.py)
+python analysis/lexical_overlap.py            # keyword overlap diagnostic
 ```
 
 Or use the skill: `/reproduce-paper`
@@ -233,26 +257,28 @@ All 24 evaluated models:
 | 2 | Contriever | `facebook/contriever` | 110M | sentence_transformer | — |
 | 3 | E5-base-v2 | `intfloat/e5-base-v2` | 110M | sentence_transformer | e5_inline |
 | 4 | TART | `orionweller/tart-dual-contriever-msmarco` | 110M | instruction | tart_sep |
-| 5 | BGE-base | `BAAI/bge-base-en-v1.5` | 326M | instruction | bge_prompt |
+| 5 | BGE-base | `BAAI/bge-base-en-v1.5` | 326M | instruction | prompt_prefix |
 | 6 | Instructor-base | `hkunlp/instructor-base` | 335M | instruction | instructor_pairs |
 | 7 | Nomic-v2 | `nomic-ai/nomic-embed-text-v2-moe` | 475M | instruction | nomic_prefix |
 | 8 | Multilingual-E5-large | `intfloat/multilingual-e5-large-instruct` | 560M | instruction | e5_inline |
 | 9 | BGE-M3 | `BAAI/bge-m3` | 568M | sentence_transformer | — |
-| 10 | Qwen3-Embed-0.6B | `Qwen/Qwen3-Embedding-0.6B` | 600M | qwen | e5_inline |
+| 10 | Qwen3-Embed-0.6B | `Qwen/Qwen3-Embedding-0.6B` | 600M | qwen | e5_inline_no_space |
 | 11 | DRAMA-1B | `facebook/drama-1b` | 1B | sentence_transformer | — |
 | 12 | Stella-1.5B | `NovaSearch/stella-en-1.5B-v5` | 1.5B | sentence_transformer | — |
 | 13 | Instructor-xl | `hkunlp/instructor-xl` | 1.5B | instruction | instructor_pairs |
-| 14 | Lychee-embed | `vec-ai/lychee-embed` | 1.5B | instruction | e5_inline |
+| 14 | Lychee-embed | `vec-ai/lychee-embed` | 1.5B | instruction | e5_inline_no_space |
 | 15 | GTE-Qwen2-1.5B | `Alibaba-NLP/gte-Qwen2-1.5B-instruct` | 1.5B | qwen | e5_inline |
-| 16 | Qwen3-Embed-4B | `Qwen/Qwen3-Embedding-4B` | 4B | qwen | e5_inline |
-| 17 | Linq-Embed-Mistral | `Linq-AI-Research/Linq-Embed-Mistral` | 7B | instruction | e5_inline |
+| 16 | Qwen3-Embed-4B | `Qwen/Qwen3-Embedding-4B` | 4B | qwen | e5_inline_no_space |
+| 17 | Linq-Embed-Mistral | `Linq-AI-Research/Linq-Embed-Mistral` | 7B | instruction | e5_inline_no_space |
 | 18 | SFR-Embedding-Mistral | `Salesforce/SFR-Embedding-Mistral` | 7B | instruction | e5_inline |
 | 19 | E5-Mistral-7B | `intfloat/e5-mistral-7b-instruct` | 7B | instruction | e5_inline |
 | 20 | GritLM-7B | `GritLM/GritLM-7B` | 7B | gritlm | instructor_pairs |
 | 21 | GTE-Qwen2-7B | `Alibaba-NLP/gte-Qwen2-7B-instruct` | 7B | qwen | e5_inline |
-| 22 | Qwen3-Embed-8B | `Qwen/Qwen3-Embedding-8B` | 8B | qwen | e5_inline |
-| 23 | Nemotron-8B | `nvidia/llama-embed-nemotron-8b` | 8B | instruction | e5_inline |
+| 22 | Qwen3-Embed-8B | `Qwen/Qwen3-Embedding-8B` | 8B | qwen | e5_inline_no_space |
+| 23 | Nemotron-8B | `nvidia/llama-embed-nemotron-8b` | 8B | instruction | e5_inline_no_space |
 | 24 | BGE-Gemma2 | `BAAI/bge-multilingual-gemma2` | 9B | instruction | bge_gemma |
+
+*BGE-base-en-v1.5 uses its canonical pretrained prefix (`"Represent this sentence for searching relevant passages: "`) via the `prompt_prefix` instruction format. The Qwen3 family, Lychee, Linq, and Nemotron use the no-space `Instruct: {task}\nQuery:{query}` variant per their model cards — verify against each card's "Usage" section before paper publication.*
 
 ---
 
