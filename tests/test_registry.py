@@ -8,7 +8,7 @@ EXPECTED_MODEL_COUNT = 24
 
 VALID_MODEL_CLASSES = {"sentence_transformer", "instruction", "gritlm", "qwen"}
 VALID_INSTRUCTION_FORMATS = {
-    "e5_inline", "e5_inline_no_space", "bge_prompt", "instructor_pairs",
+    "e5_inline", "e5_inline_no_space", "instructor_pairs",
     "tart_sep", "nomic_prefix", "bge_gemma", "prompt_prefix", None,
 }
 

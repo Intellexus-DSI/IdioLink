@@ -12,7 +12,6 @@ from ..utils import IdiomQuery
 class InstructionFormat(Enum):
     E5_INLINE = "e5_inline"  # "Instruct: {inst}\nQuery: {text}" (with space)
     E5_INLINE_NO_SPACE = "e5_inline_no_space"  # "Instruct: {inst}\nQuery:{text}" (Qwen3 family, Lychee, Linq, Nemotron)
-    BGE_PROMPT = "bge_prompt"
     INSTRUCTOR_PAIRS = "instructor_pairs"
     TART_SEP = "tart_sep"
     NOMIC_PREFIX = "nomic_prefix"
@@ -108,7 +107,7 @@ class InstructionModel(BaseEmbeddingModel):
             return f"{instruction}{text}"
         elif fmt == InstructionFormat.PLAIN:
             return text
-        # For BGE_PROMPT and INSTRUCTOR_PAIRS, formatting is handled in encode_queries
+        # For INSTRUCTOR_PAIRS, formatting is handled in encode_queries
         return text
 
     def format_queries_for_late_chunking(
@@ -123,8 +122,6 @@ class InstructionModel(BaseEmbeddingModel):
         fmt = self.instruction_format
         if fmt == InstructionFormat.INSTRUCTOR_PAIRS:
             return [f"{inst}\nQuery: {text}" for text, inst in zip(texts, instructions)]
-        if fmt == InstructionFormat.BGE_PROMPT:
-            return [f"Instruct: {inst}\nQuery: {text}" for text, inst in zip(texts, instructions)]
         if fmt == InstructionFormat.PROMPT_PREFIX:
             return [f"{inst}{text}" for text, inst in zip(texts, instructions)]
         return [self._format_query(text, inst) for text, inst in zip(texts, instructions)]
@@ -159,28 +156,7 @@ class InstructionModel(BaseEmbeddingModel):
 
         fmt = self.instruction_format
 
-        if fmt == InstructionFormat.BGE_PROMPT:
-            if len(set(instructions)) == 1:
-                prompt_name = f"Instruct: {instructions[0]}\nQuery: "
-                encoded = self.model.encode(
-                    texts,
-                    batch_size=self.batch_size,
-                    show_progress_bar=len(texts) > 100,
-                    convert_to_numpy=True,
-                    prompt=prompt_name,
-                )
-            else:
-                encoded = np.vstack([
-                    self.model.encode(
-                        [text],
-                        batch_size=1,
-                        show_progress_bar=False,
-                        convert_to_numpy=True,
-                        prompt=f"Instruct: {inst}\nQuery: ",
-                    )
-                    for text, inst in zip(texts, instructions)
-                ])
-        elif fmt == InstructionFormat.PROMPT_PREFIX:
+        if fmt == InstructionFormat.PROMPT_PREFIX:
             if len(set(instructions)) == 1:
                 encoded = self.model.encode(
                     texts,
