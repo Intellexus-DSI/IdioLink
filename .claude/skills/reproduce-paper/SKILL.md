@@ -23,7 +23,13 @@ python run_all.py
 ```
 This is the longest step. Report: number of successful model×mode combinations.
 
-#### Step 3: Fine-Tuning (5 models × 4 modes × 3 seeds)
+#### Step 3: Index-Composition Ablation
+```bash
+python run_ablation.py
+```
+Runs both presets (`lit_sim_sense`, `lit_idiom`) across all <7B models × 4 modes. Resumable: per-(preset, model, mode) `metrics.json` files are written atomically; the runner skips combos already on disk. Aggregated to `results/ablation/full_results.csv`. Report: number of (preset, model, mode) combos written.
+
+#### Step 4: Fine-Tuning (5 models × 4 modes × 3 seeds)
 Run for each of the 5 fine-tuning models:
 ```bash
 python run_fine_tune.py --model sentence-transformers/all-MiniLM-L6-v2 --mode sentence --seeds 42 43 44
@@ -33,15 +39,18 @@ python run_fine_tune.py --model sentence-transformers/all-MiniLM-L6-v2 --mode in
 ```
 Repeat for: `facebook/drama-1b`, `intfloat/e5-base-v2`, `BAAI/bge-m3`, `Qwen/Qwen3-Embedding-0.6B`.
 
-#### Step 4: Generate Analysis Tables and Figures
+#### Step 5: Generate Analysis Tables and Figures
 ```bash
 python analysis/generate_zero_shot_table.py
 python analysis/generate_finetuning_table.py
 python analysis/generate_dataset_stats.py
 python analysis/plot_performance.py
+python analysis/generate_variant_tables.py    # per-mode tables with by_usage/by_subject splits
+python analysis/generate_ablation_table.py    # per-mode ablation tables (requires Step 3)
+python analysis/lexical_overlap.py            # query↔doc keyword-overlap diagnostic
 ```
 
-#### Step 5: Report Final Summary
+#### Step 6: Report Final Summary
 - Display the full results CSV
 - Display fine-tuning table (mean±std)
 - Note any failures that need investigation

@@ -23,10 +23,12 @@ Diagnose issues with: $ARGUMENTS
    cfg = MODEL_REGISTRY[model_id]
    print(f'Model: {cfg.model_id}')
    print(f'Class: {cfg.model_class}')
-   print(f'Size: {cfg.size_params/1e9:.1f}B params')
+   print(f'Size: {cfg.size_params}')
    print(f'Trust remote code: {cfg.trust_remote_code}')
    print(f'Batch size: {cfg.batch_size}')
    print(f'Instruction format: {cfg.instruction_format}')
+   print(f'Instruction text override: {cfg.instruction_text!r}')
+   print(f'Instruction fn override: {cfg.instruction_fn}')
    "
    ```
 
