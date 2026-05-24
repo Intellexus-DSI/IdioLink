@@ -1,5 +1,6 @@
 """Regression tests for late_chunking edge cases."""
 
+import re
 import numpy as np
 import pytest
 import torch
@@ -31,16 +32,10 @@ class _FakeTransformer:
         return self
 
     def __call__(self, **encoding):
+        torch.manual_seed(0)
         seq_len = encoding["input_ids"].shape[1]
         token_embeds = torch.randn(1, seq_len, self.hidden_dim).to(self.dtype)
         return _FakeTransformerOutput(token_embeds)
-
-
-class _FakeTokenizerEncoding(dict):
-    """Dict-like encoding that supports .pop() and .items()."""
-
-    def pop(self, key, *args):
-        return super().pop(key, *args)
 
 
 class _FakeTokenizer:
@@ -49,34 +44,27 @@ class _FakeTokenizer:
 
     It produces a fixed-length sequence of tokens and constructs a
     character-level offset_mapping so that span detection works.
+    Uses re.finditer to assign per-occurrence offsets correctly even
+    when a word repeats in the document.
     """
 
     def __call__(self, text, return_offsets_mapping=False, return_tensors=None,
-                 truncation=True, max_length=512):
-        # Build a simple whitespace-based "tokenization"
-        words = text.split()
-        # Build offset mapping: track character positions per word
+                 truncation=False, max_length=None):
         offsets = []
-        pos = 0
-        # CLS token at position 0
-        offsets.append((0, 0))
-        for word in words:
-            start = text.find(word, pos)
-            end = start + len(word)
-            offsets.append((start, end))
-            pos = end
-        # SEP token
-        offsets.append((0, 0))
+        for m in re.finditer(r"\S+", text):
+            offsets.append((m.start(), m.end()))
+        # Special-token sentinels at start/end, matching production BERT-family tokenizers.
+        offsets = [(0, 0)] + offsets + [(0, 0)]
 
         seq_len = len(offsets)
         input_ids = torch.ones(1, seq_len, dtype=torch.long)
         attention_mask = torch.ones(1, seq_len, dtype=torch.long)
         offset_tensor = torch.tensor(offsets, dtype=torch.long).unsqueeze(0)  # (1, seq_len, 2)
 
-        enc = _FakeTokenizerEncoding({
+        enc = {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
-        })
+        }
         if return_offsets_mapping:
             enc["offset_mapping"] = offset_tensor
         return enc
@@ -153,3 +141,15 @@ def test_late_chunk_encode_span_not_found_fallback():
     assert out.dtype == np.float32
     assert out.shape == (1, 8)
     assert (out == 0).all()
+
+
+def test_late_chunk_encode_picks_correct_offsets_with_repeated_words():
+    """Regression: fake tokenizer must assign offsets per-occurrence, not collapse repeats."""
+    transformer = _FakeTransformer(dtype=torch.float32, hidden_dim=8)
+    tokenizer = _FakeTokenizer()
+    model = _FakeIdiolinkModel(transformer, tokenizer)
+    # Use prefer_last_span so the span resolves to the SECOND "fox".
+    docs = ["the fox saw the fox jump"]
+    spans = ["fox"]
+    out = late_chunk_encode(model, docs, spans, device="cpu", prefer_last_span=True)
+    assert out.shape == (1, 8) and out.dtype == np.float32
