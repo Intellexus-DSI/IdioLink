@@ -30,11 +30,14 @@
 - `idiolink/models/base.py` — add `passage_prefix: str = ""` default.
 - `idiolink/models/late_chunking.py` — add `late_chunk_encode_with_grad`.
 - `idiolink/trainer/datasets.py` — strip formatting; drop `mode` param.
-- `idiolink/trainer/contrastive_trainer.py` — full rewrite of `__init__`, `_compute_loss`, `_evaluate`; delete `_STModelWrapper`.
+- `idiolink/trainer/contrastive_trainer.py` — full rewrite of `__init__`, `_compute_loss`, `_evaluate`; delete `_STModelWrapper`. Fail-fast for `instructor_pairs` × instruction modes.
+- `config.yaml` — set `training.batch_size: null` so registry default actually kicks in.
 - `run_fine_tune.py` — batch-size resolution; drop `mode=mode` arg to `TripletDataset`.
 - `run_ablation.py` — delete moved helpers; import from new locations.
-- `run_dense.py`, `run_all.py`, `run_instruction.py` — import `encode_queries_for_mode` from new location (only if they currently import it).
-- `README.md` — document matrix runner; note GritLM is zero-shot only.
+- `run_all.py` — refactor its per-mode dispatch (lines 37-76) to call `encode_queries_for_mode`.
+- `run_instruction.py` — refactor its instruction-mode dispatch (lines 70-96) to call `encode_queries_for_mode`.
+- `run_dense.py` — no change (only handles `sentence`/`span` with no instruction logic, so `encode_queries_for_mode` would be overkill for the 2 lines it'd save).
+- `README.md` — document matrix runner; note GritLM AND `instructor_pairs` are zero-shot only for instruction modes.
 
 ---
 
@@ -141,6 +144,42 @@ Expected: same number of tests passing as before.
 ```bash
 git add idiolink/utils.py run_ablation.py tests/test_utils.py
 git commit -m "Promote atomic_write_json from run_ablation to idiolink.utils"
+```
+
+---
+
+## Task 1b: Set `training.batch_size: null` in config.yaml
+
+The registry-fallback resolver in `TrainingConfig` (added in Task 6) only kicks in when the input batch_size is `None`. Currently `config.yaml::training.batch_size: 32` forces 32 for every model regardless of registry default, defeating the resolver.
+
+**Files:**
+- Modify: `config.yaml`
+
+- [ ] **Step 1: Change the config line**
+
+In `config.yaml` line 41, change:
+
+```yaml
+  batch_size: 32
+```
+
+to:
+
+```yaml
+  batch_size: null   # null → use MODEL_REGISTRY[model_id].batch_size per-model;
+                     # override per-invocation with --batch_size on CLI.
+```
+
+- [ ] **Step 2: Verify load still works**
+
+Run: `python -c "from idiolink.utils import load_config; cfg=load_config('config.yaml'); assert cfg['training']['batch_size'] is None, cfg['training']['batch_size']; print('ok')"`
+Expected: `ok`.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add config.yaml
+git commit -m "config: training.batch_size=null so registry per-model default applies"
 ```
 
 ---
@@ -295,27 +334,80 @@ In `run_ablation.py`:
    ```
 3. Drop the now-unused local imports: `from idiolink.models.instruction_model import resolve_instructions` and `from idiolink.models.late_chunking import late_chunk_encode` — both are now used only by encode_helpers (verify with grep before deleting).
 
-- [ ] **Step 5: Update import sites**
+- [ ] **Step 5: Refactor `run_all.py` to use the shared helper**
 
-Search and update imports:
+`run_all.py::run_single` (lines 37-76) duplicates the per-mode dispatch. Replace its inlined logic with a call to the shared helper.
 
-```bash
-grep -rn "encode_queries_for_mode" /Users/dani/Documents/my-research/26-may-empnlp-idiolink/IdioLink --include="*.py" --exclude-dir=__pycache__
-```
+In `run_all.py`:
 
-For each match outside `run_ablation.py` and `idiolink/models/encode_helpers.py`, change the import to `from idiolink.models.encode_helpers import encode_queries_for_mode`.
+1. Replace the import block:
+   ```python
+   from idiolink.models.instruction_model import resolve_instructions
+   from idiolink.models.late_chunking import late_chunk_encode
+   ```
+   with:
+   ```python
+   from idiolink.models.encode_helpers import encode_queries_for_mode
+   ```
 
-- [ ] **Step 6: Run all tests**
+2. Replace the entire body of `run_single` (lines 37-76) with:
+   ```python
+   def run_single(model_id, model, query_mode, idiom_queries, doc_sentences, doc_metadata, top_k, device):
+       retriever = DenseRetriever(model)
+       retriever.index(doc_sentences, doc_metadata)
+
+       query_texts, query_embeddings = encode_queries_for_mode(
+           model, query_mode, idiom_queries, device,
+       )
+
+       results = retriever.retrieve(query_texts, top_k=top_k, query_embeddings=query_embeddings)
+       mapped = {q.query: results[t] for q, t in zip(idiom_queries, query_texts)}
+
+       evaluator = Evaluator(idiom_queries, [{"id": m["id"], **m} for m in doc_metadata])
+       return evaluator.evaluate(mapped)
+   ```
+   (Keep the surrounding imports/use of `DenseRetriever`, `Evaluator`, and the loop in `main` unchanged.)
+
+- [ ] **Step 6: Refactor `run_instruction.py` to use the shared helper**
+
+In `run_instruction.py`:
+
+1. Replace the import block:
+   ```python
+   from idiolink.models.instruction_model import resolve_instructions
+   from idiolink.models.late_chunking import late_chunk_encode
+   ```
+   with:
+   ```python
+   from idiolink.models.encode_helpers import encode_queries_for_mode
+   ```
+
+2. Replace the per-mode dispatch (lines 70-96, roughly) with a single call:
+   ```python
+   query_texts, query_embeddings = encode_queries_for_mode(
+       model, query_mode, idiom_queries, device,
+   )
+   ```
+   Remove the local `instructions = resolve_instructions(...)` line and the `if hasattr(model, "encode_queries")` branch — `encode_queries_for_mode` handles both. The downstream `retriever.retrieve(query_texts, top_k=top_k, query_embeddings=query_embeddings)` line stays as-is.
+
+- [ ] **Step 7: Run regression on the affected scripts**
+
+Run: `python run_all.py --models sentence-transformers/all-MiniLM-L6-v2 --modes sentence 2>&1 | tail -20`
+Expected: completes without error; produces the same metrics as before this task on the same input.
+
+Run: `python run_instruction.py --model intfloat/multilingual-e5-large-instruct --query_mode instruction_sentence --debug 2>&1 | tail -10` (if the model is cached; else skip).
+Expected: runs to completion.
+
+- [ ] **Step 8: Run all tests**
 
 Run: `pytest tests/ -v`
 Expected: same pass count as before the task started; the new import test passes.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add idiolink/models/encode_helpers.py run_ablation.py tests/test_encode_helpers.py
-# Also git add any other run_*.py files modified for imports
-git commit -m "Move encode_queries_for_mode into idiolink.models.encode_helpers"
+git add idiolink/models/encode_helpers.py run_ablation.py run_all.py run_instruction.py tests/test_encode_helpers.py
+git commit -m "Consolidate encode_queries_for_mode into idiolink.models.encode_helpers"
 ```
 
 ---
@@ -366,6 +458,34 @@ def test_late_chunk_encode_with_grad_returns_tensor_with_grad():
     assert isinstance(out, torch.Tensor)
     assert out.requires_grad or out.grad_fn is not None
     assert out.shape == (1, 8)
+
+
+def test_late_chunk_encode_with_grad_fallback_preserves_gradients():
+    """When the span is NOT found in the doc, fallback must STILL preserve
+    gradient flow (not call the no-grad model.encode path).
+    """
+    from idiolink.models.late_chunking import late_chunk_encode_with_grad
+
+    class _Wrapper:
+        model_id = "fake/model"
+        def __init__(self): self.model = _FakeST()
+        def encode(self, texts):  # would break gradients if called
+            raise AssertionError("fallback must NOT route through model.encode")
+
+    class _FakeST:
+        class _FakeFirstModule:
+            def __init__(self):
+                self.auto_model = _FakeTransformerWithGrad()
+                self.tokenizer = _FakeTokenizer()
+        def __init__(self): self._fm = _FakeST._FakeFirstModule()
+        def _first_module(self): return self._fm
+
+    docs = ["something completely unrelated"]
+    spans = ["zebra"]   # not in doc → triggers fallback
+    out = late_chunk_encode_with_grad(_Wrapper(), docs, spans, device="cpu")
+    assert isinstance(out, torch.Tensor)
+    assert out.grad_fn is not None, "fallback dropped gradients"
+    assert out.shape == (1, 8)
 ```
 
 Add a `_FakeTransformerWithGrad` near the existing `_FakeTransformer` class:
@@ -404,6 +524,24 @@ Expected: FAIL with `ImportError: cannot import name 'late_chunk_encode_with_gra
 Append to `idiolink/models/late_chunking.py`:
 
 ```python
+def _grad_fallback_full_doc_embedding(transformer, tokenizer, doc: str, device) -> torch.Tensor:
+    """Tokenize + forward + mean-pool the full doc, preserving gradients.
+
+    Used when the span isn't found in the doc or no tokens match — same
+    fall-back semantics as `late_chunk_encode` but without breaking the
+    gradient graph (the no-grad version uses model.encode() which goes
+    through ST's torch.no_grad path).
+    """
+    enc = tokenizer(
+        doc, return_tensors="pt", truncation=True, max_length=512,
+    )
+    # Strip offset_mapping if returned (some tokenizers include it by default).
+    enc.pop("offset_mapping", None)
+    enc = {k: v.to(device) for k, v in enc.items()}
+    out = transformer(**enc)
+    return out.last_hidden_state[0].mean(dim=0).float()
+
+
 def late_chunk_encode_with_grad(
     model: BaseEmbeddingModel,
     documents: List[str],
@@ -414,9 +552,9 @@ def late_chunk_encode_with_grad(
     """Gradient-flow version of `late_chunk_encode`.
 
     Mirrors `late_chunk_encode` exactly except: no `torch.no_grad()` wrap,
-    and returns a `torch.Tensor` on `device` instead of an ndarray. Used by
-    the trainer's `_compute_loss` to keep gradients flowing back through the
-    underlying transformer for span and instruction_span training modes.
+    and returns a `torch.Tensor` on `device` instead of an ndarray. The
+    fallback path (span not found / no matching tokens) also keeps gradients
+    by tokenize+forward directly, not via model.encode (which is no-grad).
     """
     if hasattr(model, "model") and hasattr(model.model, "_first_module"):
         st_model = model.model
@@ -439,10 +577,7 @@ def late_chunk_encode_with_grad(
     for doc, span in zip(documents, spans):
         span_start = doc.rfind(span) if prefer_last_span else doc.find(span)
         if span_start == -1:
-            # Fallback: encode full document (no gradients through wrapper.encode,
-            # but this path is rare — span not found in the formatted query).
-            emb = torch.from_numpy(model.encode([doc])[0]).to(device).float()
-            embeddings.append(emb)
+            embeddings.append(_grad_fallback_full_doc_embedding(transformer, tokenizer, doc, device))
             continue
 
         span_end = span_start + len(span)
@@ -464,8 +599,7 @@ def late_chunk_encode_with_grad(
         span_indices = _find_span_tokens(offset_mapping, span_start, span_end)
 
         if not span_indices:
-            emb = torch.from_numpy(model.encode([doc])[0]).to(device).float()
-            embeddings.append(emb)
+            embeddings.append(_grad_fallback_full_doc_embedding(transformer, tokenizer, doc, device))
             continue
 
         span_embs = token_embeddings[span_indices]
@@ -681,6 +815,35 @@ def test_init_raises_for_gritlm_class():
         ContrastiveTrainer(cfg)
 
 
+def test_init_raises_for_instructor_pairs_in_instruction_modes():
+    """instructor_pairs models can't be byte-equivalent to zero-shot in
+    instruction modes (zero-shot passes list-of-pairs to ST.encode, the
+    training path can only feed concatenated strings). Fail fast.
+    """
+    for mode in ("instruction_sentence", "instruction_span"):
+        cfg = TrainingConfig(
+            model_id="hkunlp/instructor-base",
+            mode=mode, seed=42, device="cpu", max_epochs=1,
+        )
+        with pytest.raises(ValueError, match="instructor_pairs"):
+            ContrastiveTrainer(cfg)
+
+
+def test_init_allows_instructor_pairs_in_non_instruction_modes():
+    """sentence/span modes don't use instructions, so instructor_pairs models
+    are still trainable in those modes.
+    """
+    cfg = TrainingConfig(
+        model_id="hkunlp/instructor-base",
+        mode="sentence", seed=42, device="cpu", max_epochs=1,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+    assert trainer.model.model_id == "hkunlp/instructor-base"
+
+
 def test_batch_size_resolution_uses_registry_default_when_none():
     """If TrainingConfig.batch_size is None, trainer pulls from MODEL_REGISTRY.
     facebook/drama-1b has batch_size=16 in the registry.
@@ -746,6 +909,24 @@ def __init__(self, config: TrainingConfig):
             f"Fine-tuning is not supported for gritlm-class models "
             f"({config.model_id}). GritLM is zero-shot-only in this codebase. "
             f"Remove it from training.models or use a different model."
+        )
+
+    # instructor_pairs models can't be byte-equivalent to zero-shot in
+    # instruction modes: zero-shot encode_queries passes a list of [inst, text]
+    # pairs to SentenceTransformer.encode for the InstructorEmbedding pooling.
+    # We can only feed concatenated strings through tokenize+forward at train
+    # time. Fail fast for instruction modes; allow plain sentence/span.
+    if (
+        registry_cfg is not None
+        and registry_cfg.instruction_format == "instructor_pairs"
+        and config.mode in ("instruction_sentence", "instruction_span")
+    ):
+        raise ValueError(
+            f"Fine-tuning is not supported for instructor_pairs models in "
+            f"instruction modes ({config.model_id}, mode={config.mode}). "
+            f"Zero-shot inference uses list-of-pairs ST.encode which the trainer's "
+            f"gradient-flow tokenize+forward path cannot mirror byte-equivalently. "
+            f"Use mode=sentence or mode=span, or pick a different model."
         )
 
     # Resolve batch_size: CLI/config > registry > hardcoded 32 fallback.
@@ -1601,27 +1782,47 @@ def _write_data(train_dir: Path):
     ]))
 
 
+def _fake_run_single_seed_factory(metrics: dict):
+    """Build a side_effect callable that mimics real run_single_seed by writing
+    metrics.json into the TrainingConfig.output_dir (the real run does this
+    via trainer.save_metrics). Returns the metrics dict the runner expects.
+    """
+    from idiolink.utils import atomic_write_json
+    from idiolink.trainer.contrastive_trainer import TRAINER_VERSION
+
+    def _impl(config, train_dir, val_dir, test_dir, mode):
+        out = Path(config.output_dir)
+        out.mkdir(parents=True, exist_ok=True)
+        atomic_write_json(out / "metrics.json", {**metrics, "_trainer_version": TRAINER_VERSION})
+        return dict(metrics)
+
+    return _impl
+
+
 def test_matrix_runner_writes_per_cell_metrics_and_aggregate(tmp_path: Path):
     train_dir = tmp_path / "data"
     _write_data(train_dir)
     cfg_path = _write_config(tmp_path, train_dir)
 
     import run_fine_tune_matrix as runner
-    with patch.object(runner, "run_single_seed", return_value={"r_precision": 0.5, "ndcg@10": 0.6}):
+    metrics = {"r_precision": 0.5, "ndcg@10": 0.6, "num_queries": 1}
+
+    with patch.object(runner, "run_single_seed", side_effect=_fake_run_single_seed_factory(metrics)):
         sys.argv = ["run_fine_tune_matrix.py", "--config", str(cfg_path)]
         runner.main()
 
-    results = Path(json.loads(cfg_path.read_text() if cfg_path.suffix == ".json"
-                              else __import__("yaml").safe_dump(__import__("yaml").safe_load(cfg_path.read_text()))) or "")
-    # Easier: read tmp_path / "results"
     rd = tmp_path / "results" / "fine_tuning"
     # 1 model x 1 mode x 2 seeds = 2 metrics.json
     files = list(rd.rglob("metrics.json"))
-    assert len(files) == 2
+    assert len(files) == 2, f"expected 2 metrics.json files, found {files}"
     agg = rd / "full_results.csv"
-    assert agg.exists()
+    assert agg.exists(), "aggregate CSV missing"
     rows = list(csv.DictReader(open(agg)))
     assert len(rows) == 2
+    # Each row must reflect the mock metrics
+    for row in rows:
+        assert float(row["r_precision"]) == 0.5
+        assert float(row["ndcg@10"]) == 0.6
 
 
 def test_matrix_runner_skips_existing_metrics(tmp_path: Path):
@@ -1630,15 +1831,18 @@ def test_matrix_runner_skips_existing_metrics(tmp_path: Path):
     cfg_path = _write_config(tmp_path, train_dir)
 
     import run_fine_tune_matrix as runner
+    metrics = {"r_precision": 0.5, "ndcg@10": 0.6, "num_queries": 1}
 
-    # First invocation: runs both seeds.
-    with patch.object(runner, "run_single_seed", return_value={"r_precision": 0.5, "ndcg@10": 0.6}) as mock_run:
+    # First invocation: runs both seeds, writes metrics.json each.
+    with patch.object(runner, "run_single_seed",
+                      side_effect=_fake_run_single_seed_factory(metrics)) as mock_run:
         sys.argv = ["run_fine_tune_matrix.py", "--config", str(cfg_path)]
         runner.main()
         assert mock_run.call_count == 2
 
-    # Second invocation: should skip both (metrics.json exists with current TRAINER_VERSION)
-    with patch.object(runner, "run_single_seed", return_value={"r_precision": 0.5, "ndcg@10": 0.6}) as mock_run:
+    # Second invocation: should skip both (metrics.json exists with current TRAINER_VERSION).
+    with patch.object(runner, "run_single_seed",
+                      side_effect=_fake_run_single_seed_factory(metrics)) as mock_run:
         sys.argv = ["run_fine_tune_matrix.py", "--config", str(cfg_path)]
         runner.main()
         assert mock_run.call_count == 0
@@ -1650,14 +1854,52 @@ def test_matrix_runner_force_recomputes(tmp_path: Path):
     cfg_path = _write_config(tmp_path, train_dir)
 
     import run_fine_tune_matrix as runner
+    first = {"r_precision": 0.5, "ndcg@10": 0.6, "num_queries": 1}
+    second = {"r_precision": 0.7, "ndcg@10": 0.8, "num_queries": 1}
 
-    with patch.object(runner, "run_single_seed", return_value={"r_precision": 0.5, "ndcg@10": 0.6}):
+    with patch.object(runner, "run_single_seed",
+                      side_effect=_fake_run_single_seed_factory(first)):
         sys.argv = ["run_fine_tune_matrix.py", "--config", str(cfg_path)]
         runner.main()
 
-    with patch.object(runner, "run_single_seed", return_value={"r_precision": 0.7, "ndcg@10": 0.8}) as mock_run:
+    with patch.object(runner, "run_single_seed",
+                      side_effect=_fake_run_single_seed_factory(second)) as mock_run:
         sys.argv = ["run_fine_tune_matrix.py", "--config", str(cfg_path), "--force"]
         runner.main()
+        assert mock_run.call_count == 2
+
+    # The rewrite must reflect the second metrics
+    agg = tmp_path / "results" / "fine_tuning" / "full_results.csv"
+    rows = list(csv.DictReader(open(agg)))
+    for row in rows:
+        assert float(row["r_precision"]) == 0.7
+
+
+def test_matrix_runner_skips_stale_trainer_version(tmp_path: Path):
+    """If metrics.json exists but _trainer_version is older, recompute."""
+    train_dir = tmp_path / "data"
+    _write_data(train_dir)
+    cfg_path = _write_config(tmp_path, train_dir)
+
+    import run_fine_tune_matrix as runner
+    from idiolink.trainer.contrastive_trainer import TRAINER_VERSION
+
+    # Pre-seed a stale metrics.json for seed=42
+    stale_path = (
+        tmp_path / "results" / "fine_tuning"
+        / "sentence-transformers__all-MiniLM-L6-v2" / "sentence" / "seed_42" / "metrics.json"
+    )
+    stale_path.parent.mkdir(parents=True, exist_ok=True)
+    stale_path.write_text(json.dumps({
+        "r_precision": 0.0, "ndcg@10": 0.0, "_trainer_version": TRAINER_VERSION - 1,
+    }))
+
+    metrics = {"r_precision": 0.5, "ndcg@10": 0.6, "num_queries": 1}
+    with patch.object(runner, "run_single_seed",
+                      side_effect=_fake_run_single_seed_factory(metrics)) as mock_run:
+        sys.argv = ["run_fine_tune_matrix.py", "--config", str(cfg_path)]
+        runner.main()
+        # Both cells should run: stale seed=42 (version mismatch) + new seed=43.
         assert mock_run.call_count == 2
 ```
 
@@ -1964,7 +2206,10 @@ Batch size: pulled from `MODEL_REGISTRY[model_id].batch_size` by default (overri
 
 ### Models supported for fine-tuning
 
-The trainer supports `sentence_transformer`, `instruction`, and `qwen` wrapper classes. **GritLM is zero-shot only** — the trainer raises an error if asked to fine-tune a `gritlm`-class model. (GritLM-7B is therefore excluded from `config.yaml::training.models` by default.)
+The trainer supports `sentence_transformer`, `instruction`, and `qwen` wrapper classes. Two restrictions:
+
+- **GritLM is zero-shot only** — the trainer raises an error for any `gritlm`-class model. GritLM-7B is therefore excluded from `config.yaml::training.models` by default.
+- **`instructor_pairs` models** (`hkunlp/instructor-base`, `hkunlp/instructor-xl`) can be fine-tuned in `sentence` or `span` modes, but **NOT in `instruction_sentence` / `instruction_span` modes**. Zero-shot inference passes a list of `[instruction, text]` pairs to the model, which the trainer's tokenize+forward gradient-flow path cannot mirror byte-equivalently. The trainer raises a clear error in this case.
 ```
 
 - [ ] **Step 3: Commit**
@@ -2019,25 +2264,26 @@ git status
 
 ## Self-review checklist
 
-After all 15 tasks complete:
+After all 16 tasks complete (1, 1b, 2-15):
 
 - [ ] **Spec coverage:**
-  - Component 1 (encode_helpers) → Task 3 ✓
-  - Component 2 (late_chunk_encode_with_grad) → Task 4 ✓
+  - Component 1 (encode_helpers) → Task 3 (now incl. run_all/run_instruction refactor) ✓
+  - Component 2 (late_chunk_encode_with_grad) → Task 4 (incl. grad-preserving fallback) ✓
   - Component 3 (passage_prefix default) → Task 2 ✓
-  - Component 4 (gritlm guard) → Task 6 ✓
+  - Component 4 (gritlm guard + instructor_pairs guard) → Task 6 ✓
   - Component 5 (TripletDataset strip) → Task 5 ✓
   - Component 6 (trainer rewrite) → Tasks 6, 7, 8, 9 ✓
   - Component 7 (run_fine_tune.py batch_size) → Task 6 step 5 ✓
-  - Component 8 (matrix runner) → Task 13 ✓
+  - Component 8 (matrix runner) → Task 13 (tests fixed: side_effect writes metrics.json + stale-version test) ✓
   - atomic_write_json shared → Task 1 ✓
+  - config.yaml batch_size sentinel → Task 1b ✓
   - _trainer_version → Task 10 ✓
   - Per-(class, mode) tests → Task 11 ✓
   - Smoke test → Task 12 ✓
-  - README → Task 14 ✓
+  - README → Task 14 (now also documents instructor_pairs restriction) ✓
 
 - [ ] **No placeholders** — every code block is concrete; no "implement X here".
 
-- [ ] **Type consistency** — `TrainingConfig.batch_size: Optional[int]` everywhere; `Dict[str, Any]` for the new evaluator return; `_trainer_version` (int) consistent across save_metrics and matrix runner.
+- [ ] **Type consistency** — `TrainingConfig.batch_size: Optional[int]` everywhere; `Dict[str, Any]` for the new evaluator return; `TRAINER_VERSION` (int) consistent across save_metrics, matrix runner's `_is_complete`, and test fixtures.
 
 - [ ] **Out-of-scope items NOT touched** — confirm no edits to `SentenceTransformerModel.__init__` (e5 prefix gap), `InstructionFormat.NOMIC_PREFIX` (instruction discard), `_atomic_write_json` body changes (fsync). All three remain on the follow-up tracker (Task #7 in the session task list).
