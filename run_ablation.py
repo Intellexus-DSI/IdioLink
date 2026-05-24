@@ -46,6 +46,20 @@ from run_bm25 import build_evaluator_docs, run_bm25, run_tuning
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
+
+def _atomic_write_json(path: Path, payload: dict) -> None:
+    """Write JSON atomically: stage to .tmp and os.replace() onto the target.
+
+    Survives mid-write interruption (Ctrl-C / OOM / kill) — without this, a
+    truncated metrics.json silently passes the resume-check `path.exists()`
+    and corrupts the aggregated full_results.csv.
+    """
+    import os
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp, "w") as f:
+        json.dump(payload, f, indent=2)
+    os.replace(tmp, path)
+
 QUERY_MODES = ["sentence", "span", "instruction_sentence", "instruction_span"]
 BM25_MODES = ["sentence", "span"]
 
@@ -216,8 +230,7 @@ def run_dense_for_model(
             # Persist per-run metrics.json
             out_dir = results_dir / "ablation" / slug / model_slug(model_id) / mode
             out_dir.mkdir(parents=True, exist_ok=True)
-            with open(out_dir / "metrics.json", "w") as f:
-                json.dump(metrics, f, indent=2)
+            _atomic_write_json(out_dir / "metrics.json", metrics)
 
             row = flatten_metrics(metrics, model_id, mode, slug)
             rows.append(row)
@@ -278,10 +291,8 @@ def run_bm25_for_preset(
 
         out_dir = results_dir / "ablation" / slug / "bm25" / mode
         out_dir.mkdir(parents=True, exist_ok=True)
-        with open(out_dir / "metrics.json", "w") as f:
-            json.dump(metrics, f, indent=2)
-        with open(out_dir / "tuning_results.json", "w") as f:
-            json.dump(tuning_results, f, indent=2)
+        _atomic_write_json(out_dir / "metrics.json", metrics)
+        _atomic_write_json(out_dir / "tuning_results.json", tuning_results)
 
         row = flatten_metrics(metrics, "bm25", mode, slug)
         rows.append(row)
