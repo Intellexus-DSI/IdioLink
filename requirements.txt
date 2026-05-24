@@ -6,3 +6,4 @@ transformers>=4.35.0
 pyyaml>=6.0
 rank-bm25>=0.2.2
 tqdm>=4.65.0
+huggingface_hub>=0.23.0,<2.0
