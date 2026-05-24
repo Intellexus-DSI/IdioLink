@@ -17,6 +17,7 @@ All skills are defined in `.claude/skills/<skill-name>/SKILL.md`. Each SKILL.md 
 | `/evaluate [model] [mode]` | View/regenerate metrics |
 | `/reproduce-paper` | Full paper reproduction |
 | `/debug-model <model>` | Diagnose model loading issues |
+| `/run-ablation`           | Index-composition ablation runner (placeholder — skill not yet authored) |
 
 ## For Non-Claude Agents
 
