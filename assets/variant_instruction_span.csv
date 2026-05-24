@@ -1,0 +1,15 @@
+model,R-P,R-P,R-P,R-P,nDCG@10,nDCG@10,nDCG@10,nDCG@10
+,overall,literal,idiomatic,by_subject,overall,literal,idiomatic,by_subject
+BAAI/bge-base-en-v1.5,0.2461,0.3691,0.1231,0.0429,0.4103,0.6235,0.1971,0.3678
+BAAI/bge-m3,0.3691,0.5276,0.2106,0.0411,0.5679,0.7572,0.3785,0.3775
+Qwen/Qwen3-Embedding-0.6B,0.3057,0.4159,0.1955,0.0427,0.4685,0.6204,0.3166,0.4180
+facebook/contriever,0.4220,0.5589,0.2851,0.0366,0.6403,0.7389,0.5417,0.3172
+facebook/drama-1b,0.5028,0.6753,0.3303,0.0275,0.6680,0.8471,0.4890,0.2701
+hkunlp/instructor-base,0.0058,0.0044,0.0072,0.0132,0.0056,0.0041,0.0071,0.0997
+hkunlp/instructor-xl,-,-,-,-,-,-,-,-
+intfloat/e5-base-v2,0.3554,0.4870,0.2238,0.0547,0.5756,0.7108,0.4404,0.5026
+intfloat/multilingual-e5-large-instruct,0.4071,0.5323,0.2819,0.0547,0.6371,0.7472,0.5271,0.5259
+nomic-ai/nomic-embed-text-v2-moe,0.4181,0.5831,0.2530,0.0465,0.6494,0.7703,0.5286,0.4664
+orionweller/tart-dual-contriever-msmarco,0.4462,0.6456,0.2468,0.0314,0.6022,0.8099,0.3945,0.2793
+sentence-transformers/all-MiniLM-L6-v2,0.4217,0.6089,0.2345,0.0193,0.5471,0.7619,0.3322,0.1823
+vec-ai/lychee-embed,0.1625,0.1851,0.1400,0.0446,0.2741,0.3109,0.2373,0.4170

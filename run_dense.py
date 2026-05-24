@@ -22,6 +22,7 @@ from idiolink.models.registry import load_model
 from idiolink.models.late_chunking import late_chunk_encode
 from idiolink.retriever import DenseRetriever
 from idiolink.evaluator import Evaluator
+from idiolink.ablation import parse_index_filter, filter_docs_by_usage
 
 
 def get_query_texts(idiom_queries: list, query_mode: str) -> list:
@@ -40,6 +41,14 @@ def main():
     parser.add_argument("--query_mode", type=str, default=None, choices=["sentence", "span"])
     parser.add_argument("--config", type=str, default="config.yaml")
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument(
+        "--index_filter",
+        type=str,
+        default=None,
+        help="Restrict the index to a subset of doc usage types. Accepts a preset "
+             "name (lit_sim_sense, lit_idiom) or a comma-separated list "
+             "(e.g. literal,idiomatic).",
+    )
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -54,10 +63,20 @@ def main():
     print(f"Query mode: {query_mode}")
     print(f"Device: {device}")
 
+    index_slug = None
+    if args.index_filter:
+        index_slug, keep = parse_index_filter(args.index_filter)
+        print(f"Index filter: {index_slug} (keep {sorted(keep)})")
+
     # Load data
     test_dir = Path(cfg["data"]["test_dir"])
     doc_sentences, doc_metadata = load_documents(str(test_dir / "indexes.json"))
     query_sentences, idiom_queries = load_queries(str(test_dir / "queries.json"))
+
+    if args.index_filter:
+        before = len(doc_sentences)
+        doc_sentences, doc_metadata = filter_docs_by_usage(doc_sentences, doc_metadata, keep)
+        print(f"Filtered docs: {before} -> {len(doc_sentences)}")
 
     if args.debug:
         n = cfg.get("debug_samples", 5)
@@ -95,7 +114,10 @@ def main():
     print(f"  Queries:     {metrics['num_queries']}")
 
     # Save
-    output_dir = Path(cfg["results_dir"]) / "zero_shot" / model_slug(model_id) / query_mode
+    if index_slug:
+        output_dir = Path(cfg["results_dir"]) / "ablation" / index_slug / model_slug(model_id) / query_mode
+    else:
+        output_dir = Path(cfg["results_dir"]) / "zero_shot" / model_slug(model_id) / query_mode
     output_dir.mkdir(parents=True, exist_ok=True)
     with open(output_dir / "metrics.json", "w") as f:
         json.dump(metrics, f, indent=2)
