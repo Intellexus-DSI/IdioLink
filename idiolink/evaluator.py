@@ -45,8 +45,10 @@ def build_subject_gold(
     and usage type. Use it for diagnostic comparison only; the headline metric
     remains the idiom-relevance gold.
 
-    Queries without a subject are mapped to None so they can be excluded from the
-    subject-based metric (rather than averaging in a degenerate 0).
+    Queries with no `subject`, or whose `subject` is absent from the indexed
+    documents (e.g. after an ablation filter), are mapped to None so they can
+    be excluded from the subject-based metric rather than averaging in a
+    degenerate 0.
     """
     subject_docs: Dict[str, Set[str]] = {}
     for doc in documents:
@@ -55,7 +57,7 @@ def build_subject_gold(
             subject_docs.setdefault(subj, set()).add(doc["id"])
     gold: Dict[str, Optional[Set[str]]] = {}
     for q in queries:
-        gold[q.query] = subject_docs.get(q.subject, set()) if q.subject else None
+        gold[q.query] = (subject_docs.get(q.subject) or None) if q.subject else None
     return gold
 
 

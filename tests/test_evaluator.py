@@ -3,6 +3,7 @@
 import pytest
 from idiolink.evaluator import (
     Evaluator,
+    _avg,
     build_gold_standard,
     build_subject_gold,
     ndcg_at_k,
@@ -187,6 +188,18 @@ class TestBuildSubjectGold:
         sgold = build_subject_gold([q], subject_documents)
         assert sgold["no_subj"] is None
 
+    def test_query_subject_absent_from_index_is_none(self):
+        """Subject present on query but not on any indexed doc → None (excluded), not empty set."""
+        docs = [
+            {"id": "d1", "sentence": "x", "idiom": "x", "usage": "literal", "subject": "Sports"},
+        ]
+        qs = [IdiomQuery(query="q1", idiom="x", usage_type="literal", subject="Politics")]
+        sgold = build_subject_gold(qs, docs)
+        assert sgold["q1"] is None, (
+            "Query with a subject not represented in the index should be excluded "
+            "(returned as None) so it isn't counted as a zero-precision query."
+        )
+
 
 class TestEvaluatorSplits:
     def test_by_usage_separates_literal_and_idiomatic(self, subject_queries, subject_documents):
@@ -237,3 +250,11 @@ class TestEvaluatorSplits:
         metrics = evaluator.evaluate(results)
         assert set(["r_precision", "ndcg@10", "num_queries"]).issubset(metrics.keys())
         assert metrics["by_subject"]["num_queries"] == 0  # no subject on the legacy fixtures
+
+
+class TestAvgHelper:
+    def test_empty_returns_zero(self):
+        assert _avg([]) == 0.0
+
+    def test_non_empty_returns_mean(self):
+        assert _avg([1.0, 3.0]) == 2.0
