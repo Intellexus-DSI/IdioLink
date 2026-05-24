@@ -1,7 +1,13 @@
 """Tests for the evaluator module."""
 
 import pytest
-from idiolink.evaluator import Evaluator, build_gold_standard, ndcg_at_k, r_precision
+from idiolink.evaluator import (
+    Evaluator,
+    build_gold_standard,
+    build_subject_gold,
+    ndcg_at_k,
+    r_precision,
+)
 from idiolink.utils import IdiomQuery
 
 
@@ -138,3 +144,96 @@ class TestEvaluator:
         metrics = evaluator.evaluate(results)
         assert metrics["r_precision"] == 0.0
         assert metrics["ndcg@10"] == 0.0
+
+
+# ---------- Splits: by_usage and by_subject ----------
+
+
+@pytest.fixture
+def subject_documents():
+    """Docs with subjects across two idioms and two subjects."""
+    docs = []
+    # break the ice / Politics
+    for i in range(2):
+        docs.append({"id": f"bti_pol_lit_{i}", "sentence": "x", "idiom": "break the ice", "usage": "literal", "subject": "Politics"})
+    for i in range(2):
+        docs.append({"id": f"bti_pol_idi_{i}", "sentence": "x", "idiom": "break the ice", "usage": "idiomatic", "subject": "Politics"})
+    # break the ice / Sports
+    for i in range(2):
+        docs.append({"id": f"bti_spo_lit_{i}", "sentence": "x", "idiom": "break the ice", "usage": "literal", "subject": "Sports"})
+    for i in range(2):
+        docs.append({"id": f"bti_spo_idi_{i}", "sentence": "x", "idiom": "break the ice", "usage": "idiomatic", "subject": "Sports"})
+    return docs
+
+
+@pytest.fixture
+def subject_queries():
+    return [
+        IdiomQuery(query="Q_lit_pol", idiom="break the ice", usage_type="literal", subject="Politics"),
+        IdiomQuery(query="Q_idi_spo", idiom="break the ice", usage_type="idiomatic", subject="Sports"),
+    ]
+
+
+class TestBuildSubjectGold:
+    def test_subject_gold_matches_subject(self, subject_queries, subject_documents):
+        sgold = build_subject_gold(subject_queries, subject_documents)
+        # Politics query -> all 4 Politics docs (regardless of usage)
+        assert sgold["Q_lit_pol"] == {"bti_pol_lit_0", "bti_pol_lit_1", "bti_pol_idi_0", "bti_pol_idi_1"}
+        # Sports query -> all 4 Sports docs
+        assert sgold["Q_idi_spo"] == {"bti_spo_lit_0", "bti_spo_lit_1", "bti_spo_idi_0", "bti_spo_idi_1"}
+
+    def test_query_without_subject_is_none(self, subject_documents):
+        q = IdiomQuery(query="no_subj", idiom="break the ice", usage_type="literal", subject="")
+        sgold = build_subject_gold([q], subject_documents)
+        assert sgold["no_subj"] is None
+
+
+class TestEvaluatorSplits:
+    def test_by_usage_separates_literal_and_idiomatic(self, subject_queries, subject_documents):
+        evaluator = Evaluator(subject_queries, subject_documents)
+        # Perfect retrieval for literal query (all 4 literal docs for the idiom),
+        # zero for idiomatic (returns only literal docs).
+        results = {
+            "Q_lit_pol": ["bti_pol_lit_0", "bti_pol_lit_1", "bti_spo_lit_0", "bti_spo_lit_1"],
+            "Q_idi_spo": ["bti_pol_lit_0", "bti_pol_lit_1", "bti_spo_lit_0", "bti_spo_lit_1"],
+        }
+        metrics = evaluator.evaluate(results)
+        assert metrics["by_usage"]["literal"]["num_queries"] == 1
+        assert metrics["by_usage"]["idiomatic"]["num_queries"] == 1
+        assert metrics["by_usage"]["literal"]["r_precision"] == pytest.approx(1.0)
+        assert metrics["by_usage"]["idiomatic"]["r_precision"] == pytest.approx(0.0)
+
+    def test_by_subject_uses_subject_as_gold(self, subject_queries, subject_documents):
+        evaluator = Evaluator(subject_queries, subject_documents)
+        # For the literal Politics query, retrieve any Politics doc (incl. idiomatic) -> all hit
+        # For the idiomatic Sports query, retrieve Politics docs -> all miss
+        results = {
+            "Q_lit_pol": ["bti_pol_idi_0", "bti_pol_idi_1", "bti_pol_lit_0", "bti_pol_lit_1"],
+            "Q_idi_spo": ["bti_pol_idi_0", "bti_pol_idi_1", "bti_pol_lit_0", "bti_pol_lit_1"],
+        }
+        metrics = evaluator.evaluate(results)
+        assert metrics["by_subject"]["num_queries"] == 2
+        # First query: R=4, top-4 are all Politics -> 1.0; Second: 0.0 -> mean 0.5
+        assert metrics["by_subject"]["r_precision"] == pytest.approx(0.5)
+
+    def test_by_subject_skips_queries_without_subject(self, subject_documents):
+        queries = [
+            IdiomQuery(query="has_subj", idiom="break the ice", usage_type="literal", subject="Politics"),
+            IdiomQuery(query="no_subj", idiom="break the ice", usage_type="literal", subject=""),
+        ]
+        evaluator = Evaluator(queries, subject_documents)
+        results = {
+            "has_subj": ["bti_pol_lit_0", "bti_pol_lit_1", "bti_pol_idi_0", "bti_pol_idi_1"],
+            "no_subj": [],
+        }
+        metrics = evaluator.evaluate(results)
+        assert metrics["by_subject"]["num_queries"] == 1
+        assert metrics["by_subject"]["r_precision"] == pytest.approx(1.0)
+
+    def test_top_level_metrics_unchanged_by_splits(self, sample_queries, sample_documents):
+        """Existing top-level keys must remain present and well-formed."""
+        evaluator = Evaluator(sample_queries, sample_documents)
+        results = {q.query: [] for q in sample_queries}
+        metrics = evaluator.evaluate(results)
+        assert set(["r_precision", "ndcg@10", "num_queries"]).issubset(metrics.keys())
+        assert metrics["by_subject"]["num_queries"] == 0  # no subject on the legacy fixtures
