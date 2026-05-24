@@ -1,9 +1,14 @@
 """Model registry: configuration and factory for all 24 embedding models."""
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Callable, Dict, Optional
 
 from .base import BaseEmbeddingModel
+
+if TYPE_CHECKING:
+    from ..utils import IdiomQuery
+
+InstructionBuilder = Callable[["IdiomQuery"], str]
 
 
 @dataclass
@@ -13,13 +18,24 @@ class ModelConfig:
     model_class: str  # sentence_transformer, instruction, gritlm, qwen
     size_params: str  # e.g. "110M", "7B"
     max_length: int = 512
-    instruction_format: Optional[str] = None  # e5_inline, bge_prompt, instructor_pairs, tart_sep, nomic_prefix, bge_gemma
+    instruction_format: Optional[str] = None  # e5_inline, bge_prompt, instructor_pairs, tart_sep, nomic_prefix, bge_gemma, prompt_prefix
     query_prefix: str = ""
     passage_prefix: str = ""
     trust_remote_code: bool = False
     batch_size: int = 32
     dtype: str = "float32"
     supports_span_pooling: bool = True
+    # Per-model instruction override. Either a static template (formatted with
+    # IdiomQuery fields via str.format) or a callable that takes the query and
+    # returns the final instruction string. Mutually exclusive.
+    instruction_text: Optional[str] = None
+    instruction_fn: Optional[InstructionBuilder] = None
+
+    def __post_init__(self):
+        if self.instruction_text is not None and self.instruction_fn is not None:
+            raise ValueError(
+                f"{self.model_id}: set either instruction_text or instruction_fn, not both."
+            )
 
 
 MODEL_REGISTRY: Dict[str, ModelConfig] = {
@@ -51,7 +67,10 @@ MODEL_REGISTRY: Dict[str, ModelConfig] = {
         model_id="BAAI/bge-base-en-v1.5",
         model_class="instruction",
         size_params="326M",
-        instruction_format="bge_prompt",
+        # BGE-en-v1.5 was trained with this canonical query prefix; use it as the prompt
+        # directly rather than wrapping in generic Instruct:/Query: scaffolding.
+        instruction_format="prompt_prefix",
+        instruction_text="Represent this sentence for searching relevant passages: ",
     ),
     "hkunlp/instructor-base": ModelConfig(
         model_id="hkunlp/instructor-base",
@@ -64,6 +83,7 @@ MODEL_REGISTRY: Dict[str, ModelConfig] = {
         model_class="instruction",
         size_params="475M",
         instruction_format="nomic_prefix",
+        passage_prefix="search_document: ",
         trust_remote_code=True,
     ),
     "intfloat/multilingual-e5-large-instruct": ModelConfig(
@@ -81,7 +101,7 @@ MODEL_REGISTRY: Dict[str, ModelConfig] = {
         model_id="Qwen/Qwen3-Embedding-0.6B",
         model_class="qwen",
         size_params="600M",
-        instruction_format="e5_inline",
+        instruction_format="e5_inline_no_space",
         trust_remote_code=True,
     ),
     "facebook/drama-1b": ModelConfig(
@@ -104,11 +124,12 @@ MODEL_REGISTRY: Dict[str, ModelConfig] = {
         instruction_format="instructor_pairs",
         batch_size=16,
     ),
+    # Family: Qwen2.5-based (no-space unverified). Verify against HF model card before paper publication.
     "vec-ai/lychee-embed": ModelConfig(
         model_id="vec-ai/lychee-embed",
         model_class="instruction",
         size_params="1.5B",
-        instruction_format="e5_inline",
+        instruction_format="e5_inline_no_space",
         batch_size=16,
     ),
     "Alibaba-NLP/gte-Qwen2-1.5B-instruct": ModelConfig(
@@ -123,15 +144,16 @@ MODEL_REGISTRY: Dict[str, ModelConfig] = {
         model_id="Qwen/Qwen3-Embedding-4B",
         model_class="qwen",
         size_params="4B",
-        instruction_format="e5_inline",
+        instruction_format="e5_inline_no_space",
         trust_remote_code=True,
         batch_size=8,
     ),
+    # Family: Mistral-based (no-space unverified). Verify against HF model card before paper publication.
     "Linq-AI-Research/Linq-Embed-Mistral": ModelConfig(
         model_id="Linq-AI-Research/Linq-Embed-Mistral",
         model_class="instruction",
         size_params="7B",
-        instruction_format="e5_inline",
+        instruction_format="e5_inline_no_space",
         batch_size=4,
     ),
     "Salesforce/SFR-Embedding-Mistral": ModelConfig(
@@ -167,15 +189,16 @@ MODEL_REGISTRY: Dict[str, ModelConfig] = {
         model_id="Qwen/Qwen3-Embedding-8B",
         model_class="qwen",
         size_params="8B",
-        instruction_format="e5_inline",
+        instruction_format="e5_inline_no_space",
         trust_remote_code=True,
         batch_size=4,
     ),
+    # Family: LLaMA-based (no-space unverified). Verify against HF model card before paper publication.
     "nvidia/llama-embed-nemotron-8b": ModelConfig(
         model_id="nvidia/llama-embed-nemotron-8b",
         model_class="instruction",
         size_params="8B",
-        instruction_format="e5_inline",
+        instruction_format="e5_inline_no_space",
         trust_remote_code=True,
         batch_size=4,
     ),
@@ -228,6 +251,7 @@ def load_model(model_id: str, device: Optional[str] = None) -> BaseEmbeddingMode
             model_id=config.model_id,
             device=device,
             batch_size=config.batch_size,
+            instruction_format=config.instruction_format or "e5_inline",
         )
     else:
         raise ValueError(f"Unknown model_class: {config.model_class}")

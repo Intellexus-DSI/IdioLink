@@ -15,7 +15,7 @@ from sentence_transformers import SentenceTransformer
 from ..evaluator import Evaluator
 from ..retriever import DenseRetriever
 from ..utils import load_documents, load_queries, set_seed, get_device
-from ..models.instruction_model import DEFAULT_INSTRUCTION_TEMPLATE
+from ..models.instruction_model import resolve_instructions
 from ..models.late_chunking import late_chunk_encode
 from .losses import InfoNCELoss
 
@@ -139,13 +139,13 @@ class ContrastiveTrainer:
                 device=self.device,
             )
         elif self.config.mode == "instruction_sentence":
-            instructions = [DEFAULT_INSTRUCTION_TEMPLATE.format(span=s) for s in spans]
+            instructions = resolve_instructions(self.config.model_id, idiom_queries)
             query_texts = [
                 f"Instruct: {instruction}\nQuery: {query}"
                 for query, instruction in zip(query_texts, instructions)
             ]
         elif self.config.mode == "instruction_span":
-            instructions = [DEFAULT_INSTRUCTION_TEMPLATE.format(span=s) for s in spans]
+            instructions = resolve_instructions(self.config.model_id, idiom_queries)
             query_texts = [
                 f"Instruct: {instruction}\nQuery: {query}"
                 for query, instruction in zip(query_texts, instructions)
