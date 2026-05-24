@@ -78,19 +78,9 @@ def test_no_idiom_overlap_across_splits():
     assert val_idioms.isdisjoint(test_idioms)
 
 
-def test_triplet_files_exist_and_match_expected_shapes():
-    expected_files = [
-        DATA_DIR / "train" / "triplets_train_full.jsonl",
-        DATA_DIR / "train" / "triplets_train_span.jsonl",
-        DATA_DIR / "val" / "triplets_val_full.jsonl",
-        DATA_DIR / "val" / "triplets_val_span.jsonl",
-        DATA_DIR / "test" / "triplets_test_span.jsonl",
-    ]
-    for path in expected_files:
-        assert path.exists(), f"Missing triplet file: {path}"
-        with open(path, encoding="utf-8") as f:
-            first = json.loads(next(f))
-        assert {"query", "positive", "negatives", "query_idiom", "query_usage"} <= first.keys()
-        assert isinstance(first["negatives"], list)
-        assert first["negatives"]
+def test_core_data_files_exist():
+    """Triplet files are not distributed — only indexes and queries are required."""
+    for split in ("train", "val", "test"):
+        assert (DATA_DIR / split / "indexes.json").exists(), f"Missing {split}/indexes.json"
+        assert (DATA_DIR / split / "queries.json").exists(), f"Missing {split}/queries.json"
 

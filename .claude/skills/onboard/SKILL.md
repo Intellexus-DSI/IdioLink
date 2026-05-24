@@ -18,12 +18,18 @@ Help the user get started with the IdioLink project.
    pip install -r requirements.txt
    ```
 
-3. **Verify environment** — run a quick smoke test with 5 queries
+3. **Download the dataset** from HuggingFace into `data/`
+   ```bash
+   python download_data.py
+   ```
+   This populates `data/train/`, `data/val/`, and `data/test/` with `indexes.json` and `queries.json` for each split. The dataset is hosted at [Intellexus/IdioLink](https://huggingface.co/datasets/Intellexus/IdioLink).
+
+4. **Verify environment** — run a quick smoke test with 5 queries
    ```bash
    python run_dense.py --model sentence-transformers/all-MiniLM-L6-v2 --query_mode sentence --debug
    ```
 
-4. **Explain project structure** to the user:
+5. **Explain project structure** to the user:
    - `run_dense.py` — dense retrieval (sentence/span modes)
    - `run_instruction.py` — instruction-aware retrieval (instruction_sentence/instruction_span)
    - `run_bm25.py` — BM25 lexical baseline
@@ -34,7 +40,7 @@ Help the user get started with the IdioLink project.
    - `analysis/` — scripts to generate paper tables and figures
    - `config.yaml` — central configuration
 
-5. **Show available skills** — list the slash commands:
+6. **Show available skills** — list the slash commands:
    - `/run-experiment` — run a single model+mode experiment
    - `/run-all` — run full experiment grid
    - `/fine-tune` — contrastive fine-tuning
@@ -42,4 +48,4 @@ Help the user get started with the IdioLink project.
    - `/reproduce-paper` — full paper reproduction
    - `/debug-model` — diagnose model loading issues
 
-6. **Confirm** that the smoke test produced metrics (R-Precision and nDCG@10) and report success.
+7. **Confirm** that the smoke test produced metrics (R-Precision and nDCG@10) and report success.
