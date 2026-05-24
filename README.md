@@ -58,6 +58,11 @@ Skills are defined in `.claude/skills/` and work for any collaborator who clones
 - **R-Precision** — Precision at R, where R = number of relevant documents for the query
 - **nDCG@10** — Normalized Discounted Cumulative Gain at rank 10
 
+Each `metrics.json` also carries two diagnostic breakdowns:
+
+- **`by_usage`** *(recommended diagnostic)* — the headline metrics restricted to literal-only and idiomatic-only queries. This is the primary breakdown for understanding model behavior across PIE usage types.
+- **`by_subject`** *(supplementary sanity check)* — a topical-coherence signal using shared `subject` as binary relevance. Intentionally weaker than the idiom-relevance gold — it ignores idiom identity and usage type. Use for diagnostic comparison only, not as a headline metric.
+
 ### Document Usage Types
 
 | Type | Description | Share |
