@@ -23,7 +23,7 @@ from idiolink.utils import (
     model_slug,
 )
 from idiolink.models.registry import MODEL_REGISTRY, load_model
-from idiolink.models.instruction_model import DEFAULT_INSTRUCTION_TEMPLATE
+from idiolink.models.instruction_model import resolve_instructions
 from idiolink.models.late_chunking import late_chunk_encode
 from idiolink.retriever import DenseRetriever
 from idiolink.evaluator import Evaluator
@@ -41,7 +41,7 @@ def run_single(model_id, model, query_mode, idiom_queries, doc_sentences, doc_me
 
     spans = [q.span if q.span else q.query for q in idiom_queries]
     query_sentences = [q.query for q in idiom_queries]
-    instructions = [DEFAULT_INSTRUCTION_TEMPLATE.format(span=s) for s in spans]
+    instructions = resolve_instructions(model_id, idiom_queries)
 
     if query_mode == "sentence":
         query_texts = query_sentences

@@ -19,7 +19,7 @@ from idiolink.utils import (
     model_slug,
 )
 from idiolink.models.registry import MODEL_REGISTRY, load_model
-from idiolink.models.instruction_model import DEFAULT_INSTRUCTION_TEMPLATE
+from idiolink.models.instruction_model import resolve_instructions
 from idiolink.models.late_chunking import late_chunk_encode
 from idiolink.retriever import DenseRetriever
 from idiolink.evaluator import Evaluator
@@ -65,11 +65,9 @@ def main():
     print(f"Indexing {len(doc_sentences)} documents...")
     retriever.index(doc_sentences, doc_metadata)
 
-    # Build instruction per query
+    # Build instruction per query (per-model override via resolver)
     spans = [q.span if q.span else q.query for q in idiom_queries]
-    instructions = [
-        DEFAULT_INSTRUCTION_TEMPLATE.format(span=s) for s in spans
-    ]
+    instructions = resolve_instructions(model_id, idiom_queries)
 
     query_texts = [q.query for q in idiom_queries]
 

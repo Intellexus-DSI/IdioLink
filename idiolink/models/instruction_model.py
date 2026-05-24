@@ -6,15 +6,17 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from .base import BaseEmbeddingModel
+from ..utils import IdiomQuery
 
 
 class InstructionFormat(Enum):
-    E5_INLINE = "e5_inline"
-    BGE_PROMPT = "bge_prompt"
+    E5_INLINE = "e5_inline"  # "Instruct: {inst}\nQuery: {text}" (with space)
+    E5_INLINE_NO_SPACE = "e5_inline_no_space"  # "Instruct: {inst}\nQuery:{text}" (Qwen3 family, Lychee, Linq, Nemotron)
     INSTRUCTOR_PAIRS = "instructor_pairs"
     TART_SEP = "tart_sep"
     NOMIC_PREFIX = "nomic_prefix"
     BGE_GEMMA = "bge_gemma"
+    PROMPT_PREFIX = "prompt_prefix"  # use the instruction text as a raw query prefix
     PLAIN = "plain"
 
 
@@ -22,6 +24,46 @@ DEFAULT_INSTRUCTION_TEMPLATE = (
     "Based on the literal/idiomatic usage of the span '{span}' in the query, "
     "retrieve documents that contain a span conveying the same conceptual meaning."
 )
+
+
+def resolve_instruction(model_id: str, query: IdiomQuery) -> str:
+    """Build the instruction text for a given (model, query) pair.
+
+    Resolution order:
+      1. If the model's ModelConfig defines ``instruction_fn``, call it.
+      2. Else if it defines ``instruction_text``, format it with the query fields
+         (``{span}``, ``{idiom}``, ``{subject}``, ``{query}``, ``{usage_type}``).
+      3. Else fall back to ``DEFAULT_INSTRUCTION_TEMPLATE`` formatted with ``{span}``.
+
+    Unknown ``model_id`` falls back to the default template (treated as no override).
+    """
+    # Local import: avoids any circular-import surprises with registry loading.
+    from .registry import MODEL_REGISTRY
+
+    cfg = MODEL_REGISTRY.get(model_id)
+    if cfg is not None:
+        if cfg.instruction_fn is not None:
+            return cfg.instruction_fn(query)
+        if cfg.instruction_text is not None:
+            try:
+                return cfg.instruction_text.format(
+                    span=query.span,
+                    idiom=query.idiom,
+                    subject=query.subject,
+                    query=query.query,
+                    usage_type=query.usage_type,
+                )
+            except KeyError as e:
+                raise ValueError(
+                    f"{model_id}: instruction_text references unknown placeholder {e}. "
+                    "Available: span, idiom, subject, query, usage_type."
+                ) from e
+    return DEFAULT_INSTRUCTION_TEMPLATE.format(span=query.span)
+
+
+def resolve_instructions(model_id: str, queries: List[IdiomQuery]) -> List[str]:
+    """Vectorised form of :func:`resolve_instruction` for a list of queries."""
+    return [resolve_instruction(model_id, q) for q in queries]
 
 
 class InstructionModel(BaseEmbeddingModel):
@@ -53,15 +95,19 @@ class InstructionModel(BaseEmbeddingModel):
         fmt = self.instruction_format
         if fmt == InstructionFormat.E5_INLINE:
             return f"Instruct: {instruction}\nQuery: {text}"
+        elif fmt == InstructionFormat.E5_INLINE_NO_SPACE:
+            return f"Instruct: {instruction}\nQuery:{text}"
         elif fmt == InstructionFormat.TART_SEP:
             return f"{instruction} [SEP] {text}"
         elif fmt == InstructionFormat.NOMIC_PREFIX:
             return f"search_query: {text}"
         elif fmt == InstructionFormat.BGE_GEMMA:
             return f"<instruct>{instruction}\n<query>{text}"
+        elif fmt == InstructionFormat.PROMPT_PREFIX:
+            return f"{instruction}{text}"
         elif fmt == InstructionFormat.PLAIN:
             return text
-        # For BGE_PROMPT and INSTRUCTOR_PAIRS, formatting is handled in encode_queries
+        # For INSTRUCTOR_PAIRS, formatting is handled in encode_queries
         return text
 
     def format_queries_for_late_chunking(
@@ -76,8 +122,8 @@ class InstructionModel(BaseEmbeddingModel):
         fmt = self.instruction_format
         if fmt == InstructionFormat.INSTRUCTOR_PAIRS:
             return [f"{inst}\nQuery: {text}" for text, inst in zip(texts, instructions)]
-        if fmt == InstructionFormat.BGE_PROMPT:
-            return [f"Instruct: {inst}\nQuery: {text}" for text, inst in zip(texts, instructions)]
+        if fmt == InstructionFormat.PROMPT_PREFIX:
+            return [f"{inst}{text}" for text, inst in zip(texts, instructions)]
         return [self._format_query(text, inst) for text, inst in zip(texts, instructions)]
 
     def encode(self, texts: List[str]) -> np.ndarray:
@@ -110,15 +156,14 @@ class InstructionModel(BaseEmbeddingModel):
 
         fmt = self.instruction_format
 
-        if fmt == InstructionFormat.BGE_PROMPT:
+        if fmt == InstructionFormat.PROMPT_PREFIX:
             if len(set(instructions)) == 1:
-                prompt_name = f"Instruct: {instructions[0]}\nQuery: "
                 encoded = self.model.encode(
                     texts,
                     batch_size=self.batch_size,
                     show_progress_bar=len(texts) > 100,
                     convert_to_numpy=True,
-                    prompt=prompt_name,
+                    prompt=instructions[0],
                 )
             else:
                 encoded = np.vstack([
@@ -127,7 +172,7 @@ class InstructionModel(BaseEmbeddingModel):
                         batch_size=1,
                         show_progress_bar=False,
                         convert_to_numpy=True,
-                        prompt=f"Instruct: {inst}\nQuery: ",
+                        prompt=inst,
                     )
                     for text, inst in zip(texts, instructions)
                 ])
