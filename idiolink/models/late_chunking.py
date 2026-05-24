@@ -84,9 +84,10 @@ def late_chunk_encode(
             embeddings.append(emb)
             continue
 
-        # Mean-pool span tokens
+        # Mean-pool span tokens. Cast to fp32 before .numpy() because numpy
+        # has no native bf16/fp16 dtype.
         span_embs = token_embeddings[span_indices]
-        pooled = span_embs.mean(dim=0).cpu().numpy().astype(np.float32)
+        pooled = span_embs.mean(dim=0).float().cpu().numpy()
         embeddings.append(pooled)
 
     return np.array(embeddings, dtype=np.float32)
