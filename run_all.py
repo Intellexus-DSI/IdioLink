@@ -158,10 +158,9 @@ def main():
     # Write aggregated CSV
     if all_results:
         csv_path = results_dir / "full_results.csv"
-        fieldnames = ["model", "query_mode", "r_precision", "ndcg@10", "num_queries"]
         csv_path.parent.mkdir(parents=True, exist_ok=True)
         with open(csv_path, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer = csv.DictWriter(f, fieldnames=["model", "query_mode", "r_precision", "ndcg@10", "num_queries"])
             writer.writeheader()
             writer.writerows(all_results)
         logger.info(f"Aggregated results saved to {csv_path}")
