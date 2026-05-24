@@ -17,6 +17,7 @@ class IdiomQuery:
     idiom: str
     usage_type: str  # "literal" or "idiomatic"
     span: str = ""
+    subject: str = ""
 
 
 def load_config(config_path: str = "config.yaml") -> Dict[str, Any]:
@@ -50,6 +51,7 @@ def load_queries(query_file: str) -> Tuple[List[str], List[IdiomQuery]]:
             idiom=item["idiom"],
             usage_type=item["usage"],
             span=item.get("span", ""),
+            subject=item.get("subject", ""),
         ))
     return query_strings, idiom_queries
 
