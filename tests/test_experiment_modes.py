@@ -89,7 +89,7 @@ def test_span_mode_uses_late_chunking_with_full_query_context(monkeypatch):
 
     queries, doc_sentences, docs = _fixture_data()
     model = RecordingModel()
-    run_all.run_single("recording-model", model, "span", queries, doc_sentences, docs, 2, "cpu")
+    run_all.run_single(model, "span", queries, doc_sentences, docs, 2, "cpu")
 
     assert calls
     assert calls[0]["documents"] == [q.query for q in queries]
@@ -102,7 +102,6 @@ def test_instruction_sentence_uses_per_query_instructions():
     model = RecordingModel()
 
     run_all.run_single(
-        "recording-model",
         model,
         "instruction_sentence",
         queries,
@@ -134,7 +133,6 @@ def test_instruction_span_formats_queries_before_late_chunking(monkeypatch):
     queries, doc_sentences, docs = _fixture_data()
     model = RecordingModel()
     run_all.run_single(
-        "recording-model",
         model,
         "instruction_span",
         queries,

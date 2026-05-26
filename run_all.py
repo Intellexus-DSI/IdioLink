@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 QUERY_MODES = ["sentence", "span", "instruction_sentence", "instruction_span"]
 
 
-def run_single(model_id, model, query_mode, idiom_queries, doc_sentences, doc_metadata, top_k, device):
+def run_single(model, query_mode, idiom_queries, doc_sentences, doc_metadata, top_k, device):
     """Run a single model x mode combination. Returns metrics dict or None on failure."""
     retriever = DenseRetriever(model)
     retriever.index(doc_sentences, doc_metadata)
@@ -91,7 +91,7 @@ def main():
             logger.info(f"  Running {model_id} / {query_mode}")
             try:
                 metrics = run_single(
-                    model_id, model, query_mode,
+                    model, query_mode,
                     idiom_queries, doc_sentences, doc_metadata, top_k, device,
                 )
             except Exception as e:
