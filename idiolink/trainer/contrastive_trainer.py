@@ -1,6 +1,5 @@
 """Contrastive trainer for fine-tuning sentence embedding models with InfoNCE."""
 
-import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -360,9 +359,14 @@ class ContrastiveTrainer:
         output_path = Path(self.config.output_dir)
         best_model_path = output_path / "best_model"
         if best_model_path.exists():
-            self.st_model = SentenceTransformer(
+            reloaded = SentenceTransformer(
                 str(best_model_path), device=self.device
             )
+            self.st_model = reloaded
+            # Update the wrapper too so encode/encode_queries use the new weights.
+            # Without this, _evaluate silently runs on the pre-trained model
+            # because the wrapper holds its own reference to the original ST.
+            self.model.model = reloaded
         return self._evaluate(test_queries_file, test_indexes_file)
 
     def save_metrics(self, metrics: Dict[str, Any], filename: str = "metrics.json"):

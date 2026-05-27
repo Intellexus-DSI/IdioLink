@@ -388,6 +388,60 @@ def test_train_query_strings_match_zero_shot(class_name, model_id, _expected, mo
     )
 
 
+def test_evaluate_test_uses_reloaded_best_model(tmp_path: Path):
+    """evaluate_test must route encoding through the RELOADED best-model
+    weights, not the pre-trained model. After T9 deleted _STModelWrapper,
+    rebinding self.st_model is not enough — self.model.model also needs the
+    swap, since the wrapper holds its own reference.
+    """
+    from unittest.mock import patch, MagicMock
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="sentence", seed=42, device="cpu", max_epochs=1, batch_size=2,
+        output_dir=str(tmp_path),
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"MiniLM not available: {e}")
+
+    # Create a fake "best model" directory; SentenceTransformer load will be patched
+    best_dir = tmp_path / "best_model"
+    best_dir.mkdir()
+    # Just need it to exist; we patch the actual SentenceTransformer constructor
+    (best_dir / "config.json").write_text("{}")
+
+    fake_reloaded = MagicMock(name="reloaded_ST")
+
+    # Capture wrapper.model.model at the moment _evaluate would run. The point
+    # of the regression test is: by the time _evaluate fires, the wrapper must
+    # already be pointing at the reloaded instance — otherwise encoding routes
+    # through the pre-trained weights.
+    observed: dict = {}
+
+    def fake_evaluate(_q, _i):
+        observed["st_model"] = trainer.st_model
+        observed["wrapper_inner"] = trainer.model.model
+        return {"ndcg@10": 0.0}
+
+    with patch(
+        "idiolink.trainer.contrastive_trainer.SentenceTransformer",
+        return_value=fake_reloaded,
+    ):
+        with patch.object(trainer, "_evaluate", side_effect=fake_evaluate):
+            trainer.evaluate_test("dummy_q.json", "dummy_i.json")
+
+    # After evaluate_test triggered _evaluate: BOTH the trainer's st_model AND
+    # the wrapper's internal model attribute should point to the reloaded
+    # instance.
+    assert observed["st_model"] is fake_reloaded, "trainer.st_model not swapped"
+    assert observed["wrapper_inner"] is fake_reloaded, (
+        "wrapper.model.model not swapped — evaluate_test would silently use "
+        "the pre-trained model"
+    )
+
+
 def test_end_to_end_one_step_minilm_instruction_sentence(tmp_path: Path):
     """One full train step on MiniLM, instruction_sentence mode. Asserts no
     exception, finite loss, gradients populated. Slow (~30s with model load).
