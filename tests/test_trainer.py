@@ -245,3 +245,49 @@ def test_compute_loss_instruction_span_uses_prefer_last_span_true():
         trainer._compute_loss(batch)
         mock_lc.assert_called_once()
         assert mock_lc.call_args.kwargs["prefer_last_span"] is True
+
+
+def test_evaluate_uses_encode_queries_for_mode():
+    """_evaluate routes through encode_queries_for_mode (the same helper as
+    zero-shot) — no hardcoded Instruct/Query wrapping.
+    """
+    from unittest.mock import patch
+    import json
+    from pathlib import Path
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="instruction_sentence", seed=42, device="cpu", max_epochs=1, batch_size=2,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+
+    # Tiny fixtures
+    tmp = Path(__file__).parent / "_tmp_eval_fixtures"
+    tmp.mkdir(exist_ok=True)
+    q_path = tmp / "queries.json"
+    i_path = tmp / "indexes.json"
+    q_path.write_text(json.dumps([
+        {"sentence": "cat", "idiom": "cat", "usage": "literal", "span": "cat", "subject": ""},
+    ]))
+    i_path.write_text(json.dumps([
+        {"sentence": "feline", "id": "d1", "idiom": "cat", "usage": "literal", "subject": ""},
+    ]))
+
+    import numpy as np
+    with patch(
+        "idiolink.trainer.contrastive_trainer.encode_queries_for_mode"
+    ) as mock_eqfm:
+        mock_eqfm.return_value = (["cat"], np.zeros((1, trainer.model.embedding_dim), dtype=np.float32))
+        trainer._evaluate(str(q_path), str(i_path))
+        mock_eqfm.assert_called_once()
+        args = mock_eqfm.call_args.args
+        assert args[1] == "instruction_sentence"
+
+
+def test_st_model_wrapper_class_is_deleted():
+    """The internal _STModelWrapper class is removed (replaced by direct wrapper use)."""
+    import idiolink.trainer.contrastive_trainer as ct_mod
+    assert not hasattr(ct_mod, "_STModelWrapper")

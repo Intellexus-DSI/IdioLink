@@ -15,8 +15,9 @@ from sentence_transformers import SentenceTransformer
 from ..evaluator import Evaluator
 from ..retriever import DenseRetriever
 from ..utils import load_documents, load_queries, set_seed, get_device
+from ..models.encode_helpers import encode_queries_for_mode
 from ..models.instruction_model import resolve_instructions
-from ..models.late_chunking import late_chunk_encode, late_chunk_encode_with_grad
+from ..models.late_chunking import late_chunk_encode_with_grad
 from .losses import InfoNCELoss
 
 logger = logging.getLogger(__name__)
@@ -167,13 +168,6 @@ class ContrastiveTrainer:
         instructions = resolve_instructions(self.config.model_id, idiom_queries)
         return self.model.format_queries_for_late_chunking(plain_texts, instructions)
 
-    def _encode_texts(self, texts: List[str]) -> torch.Tensor:
-        """Encode texts using the SentenceTransformer and return tensor on device."""
-        embeddings = self.st_model.encode(
-            texts, convert_to_tensor=True, show_progress_bar=False
-        )
-        return embeddings.to(self.device)
-
     def _compute_loss(self, batch: Dict[str, Any]) -> torch.Tensor:
         """Compute InfoNCE loss for a batch with per-mode query encoding and
         doc-side passage_prefix application. Mirrors zero-shot inference path.
@@ -233,49 +227,26 @@ class ContrastiveTrainer:
         self,
         queries_file: str,
         indexes_file: str,
-    ) -> Dict[str, float]:
-        """Run evaluation using the current model state."""
+    ) -> Dict[str, Any]:
+        """Run evaluation via the same per-mode encoding helper as zero-shot."""
         self.st_model.eval()
-        # Wrap in our model interface for retrieval
-        wrapper = _STModelWrapper(self.st_model)
-        retriever = DenseRetriever(wrapper)
+        retriever = DenseRetriever(self.model)
 
         query_sentences, idiom_queries = load_queries(queries_file)
         doc_sentences, doc_metadata = load_documents(indexes_file)
 
         retriever.index(doc_sentences, doc_metadata)
-        query_texts = [q.query for q in idiom_queries]
-        spans = [q.span if q.span else q.query for q in idiom_queries]
-        query_embeddings = None
-
-        if self.config.mode == "span":
-            query_embeddings = late_chunk_encode(
-                wrapper,
-                query_texts,
-                spans,
-                device=self.device,
-            )
-        elif self.config.mode == "instruction_sentence":
-            instructions = resolve_instructions(self.config.model_id, idiom_queries)
-            query_texts = [
-                f"Instruct: {instruction}\nQuery: {query}"
-                for query, instruction in zip(query_texts, instructions)
-            ]
-        elif self.config.mode == "instruction_span":
-            instructions = resolve_instructions(self.config.model_id, idiom_queries)
-            query_texts = [
-                f"Instruct: {instruction}\nQuery: {query}"
-                for query, instruction in zip(query_texts, instructions)
-            ]
-            query_embeddings = late_chunk_encode(
-                wrapper,
-                query_texts,
-                spans,
-                device=self.device,
-                prefer_last_span=True,
-            )
+        query_texts, query_embeddings = encode_queries_for_mode(
+            self.model, self.config.mode, idiom_queries, self.device,
+        )
 
         results = retriever.retrieve(query_texts, top_k=100, query_embeddings=query_embeddings)
+        # Re-key by original sentence in case query_texts differ from query_sentences
+        # (instruction modes prepend prompts). DenseRetriever keys by the strings
+        # passed to retrieve, not by the encoded form; the formatted strings ARE
+        # what zero-shot uses too, so the keys here match the wrapped form.
+        # For backward compatibility with evaluator API (which keys by q.query),
+        # map back to plain sentences:
         if query_texts != query_sentences:
             results = {
                 original: results[encoded]
@@ -397,20 +368,3 @@ class ContrastiveTrainer:
         output_path.mkdir(parents=True, exist_ok=True)
         with open(output_path / filename, "w") as f:
             json.dump(metrics, f, indent=2)
-
-
-class _STModelWrapper:
-    """Thin wrapper to use SentenceTransformer with DenseRetriever."""
-
-    def __init__(self, st_model: SentenceTransformer):
-        self.st_model = st_model
-        self.embedding_dim = st_model.get_sentence_embedding_dimension()
-
-    def encode(self, texts: List[str]) -> np.ndarray:
-        embeddings = self.st_model.encode(
-            texts,
-            batch_size=64,
-            show_progress_bar=False,
-            convert_to_numpy=True,
-        )
-        return embeddings.astype(np.float32)
