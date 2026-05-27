@@ -386,3 +386,55 @@ def test_train_query_strings_match_zero_shot(class_name, model_id, _expected, mo
         f"  train:    {train_strings}\n"
         f"  expected: {expected}\n"
     )
+
+
+def test_end_to_end_one_step_minilm_instruction_sentence(tmp_path: Path):
+    """One full train step on MiniLM, instruction_sentence mode. Asserts no
+    exception, finite loss, gradients populated. Slow (~30s with model load).
+    """
+    import json
+    from pathlib import Path as _P
+    from torch.utils.data import DataLoader
+
+    from idiolink.trainer import TripletDataset
+    from idiolink.trainer.contrastive_trainer import collate_triplets
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="instruction_sentence",
+        seed=42, device="cpu",
+        max_epochs=1, batch_size=2, max_negatives=1,
+        output_dir=str(tmp_path),
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"MiniLM not available: {e}")
+
+    triplet_path = tmp_path / "tri.jsonl"
+    triplets = [
+        {"query": "the cat sat", "query_span": "cat", "query_idiom": "cat",
+         "query_usage": "literal", "query_subject": "",
+         "positive": "feline rest", "negatives": ["he kicked the bucket"]},
+        {"query": "she dropped the ball", "query_span": "dropped the ball",
+         "query_idiom": "drop the ball", "query_usage": "idiomatic", "query_subject": "",
+         "positive": "she failed at it", "negatives": ["the ball fell"]},
+    ]
+    with open(triplet_path, "w") as f:
+        for t in triplets:
+            f.write(json.dumps(t) + "\n")
+
+    ds = TripletDataset(str(triplet_path), max_negatives=1)
+    loader = DataLoader(ds, batch_size=2, shuffle=False, collate_fn=collate_triplets)
+
+    trainer.st_model.train()
+    batch = next(iter(loader))
+    loss = trainer._compute_loss(batch)
+
+    assert torch.isfinite(loss), f"non-finite loss: {loss}"
+    loss.backward()
+
+    # At least one parameter must have a non-None grad
+    had_grad = any(p.grad is not None and p.grad.abs().sum() > 0
+                   for p in trainer.st_model.parameters() if p.requires_grad)
+    assert had_grad, "No gradients flowed back to any model parameter"
