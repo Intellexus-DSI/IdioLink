@@ -45,7 +45,6 @@ def run_single_seed(
     train_dataset = TripletDataset(
         triplet_file,
         max_negatives=config.max_negatives,
-        mode=mode,
     )
     logger.info(f"Training samples: {len(train_dataset)}")
 

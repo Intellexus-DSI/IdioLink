@@ -13,17 +13,19 @@ class TripletDataset(Dataset):
     Dataset that loads pre-mined triplets from a JSONL file.
 
     Each line: {"query": ..., "positive": ..., "negatives": [...],
-                "query_idiom": ..., "query_usage": ..., ...}
+                "query_idiom": ..., "query_usage": ..., "query_span": ...,
+                "query_subject": ...}
+
+    Mode-agnostic: returns plain fields. The trainer applies per-model
+    instruction formatting and per-mode span substitution at encode time.
     """
 
     def __init__(
         self,
         triplet_file: str,
         max_negatives: int = 5,
-        mode: str = "sentence",
     ):
         self.max_negatives = max_negatives
-        self.mode = mode
         self.samples: List[Dict[str, Any]] = []
         with open(triplet_file, "r", encoding="utf-8") as f:
             for line in f:
@@ -36,19 +38,12 @@ class TripletDataset(Dataset):
     def __getitem__(self, idx: int) -> Dict[str, Any]:
         item = self.samples[idx]
         negatives = item["negatives"][: self.max_negatives]
-        query = item["query"]
-        if self.mode in ("span", "instruction_span"):
-            query = item.get("query_span") or query
-        if self.mode in ("instruction_sentence", "instruction_span"):
-            span = item.get("query_span") or item.get("query_idiom") or query
-            instruction = (
-                "Based on the literal/idiomatic usage of the span "
-                f"'{span}' in the query, retrieve documents that contain "
-                "a span conveying the same conceptual meaning."
-            )
-            query = f"Instruct: {instruction}\nQuery: {query}"
         return {
-            "query": query,
+            "query": item["query"],
+            "query_span": item.get("query_span") or item.get("query_idiom") or item["query"],
+            "query_idiom": item.get("query_idiom", ""),
+            "query_usage": item.get("query_usage", ""),
+            "query_subject": item.get("query_subject", ""),
             "positive": item["positive"],
             "negatives": negatives,
         }
