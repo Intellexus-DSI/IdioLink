@@ -126,6 +126,30 @@ class ContrastiveTrainer:
         self.st_model = self.model.model  # underlying SentenceTransformer
         self.loss_fn = InfoNCELoss(temperature=config.temperature)
 
+    def _encode_with_grad(self, texts: List[str]) -> torch.Tensor:
+        """Tokenize + forward through the underlying SentenceTransformer with gradients."""
+        features = self.st_model.tokenize(texts)
+        features = {k: v.to(self.device) for k, v in features.items()}
+        output = self.st_model(features)
+        return output["sentence_embedding"]
+
+    def _format_query_strings(
+        self,
+        plain_texts: List[str],
+        idiom_queries: List["IdiomQuery"],
+    ) -> List[str]:
+        """Return the strings the model would tokenize for queries, per mode.
+
+        - sentence / span: identity (plain query text).
+        - instruction_sentence / instruction_span: per-model instruction-formatted
+          string via wrapper.format_queries_for_late_chunking, which is the same
+          output zero-shot's encode_queries_for_mode uses.
+        """
+        if self.config.mode in ("sentence", "span"):
+            return list(plain_texts)
+        instructions = resolve_instructions(self.config.model_id, idiom_queries)
+        return self.model.format_queries_for_late_chunking(plain_texts, instructions)
+
     def _encode_texts(self, texts: List[str]) -> torch.Tensor:
         """Encode texts using the SentenceTransformer and return tensor on device."""
         embeddings = self.st_model.encode(

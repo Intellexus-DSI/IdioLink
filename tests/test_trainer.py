@@ -103,3 +103,46 @@ def test_batch_size_resolution_cli_override_wins():
     except (OSError, RuntimeError, ImportError) as e:
         pytest.skip(f"Model not available: {e}")
     assert trainer.config.batch_size == 4
+
+
+def test_format_query_strings_passes_through_for_sentence_mode():
+    """For sentence/span modes, formatter is a no-op (returns input unchanged)."""
+    from idiolink.utils import IdiomQuery
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="sentence", seed=42, device="cpu", max_epochs=1, batch_size=2,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+
+    queries = ["the cat sat", "he kicked the bucket"]
+    iqs = [IdiomQuery(query=q, idiom="", usage_type="literal", span="cat", subject="")
+           for q in queries]
+    out = trainer._format_query_strings(queries, iqs)
+    assert out == queries
+
+
+def test_format_query_strings_applies_wrapper_format_for_instruction_modes():
+    """For instruction modes, formatter delegates to wrapper.format_queries_for_late_chunking."""
+    from idiolink.utils import IdiomQuery
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="instruction_sentence", seed=42, device="cpu", max_epochs=1, batch_size=2,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+
+    queries = ["the cat sat"]
+    iqs = [IdiomQuery(query="the cat sat", idiom="cat", usage_type="literal",
+                      span="cat", subject="")]
+    out = trainer._format_query_strings(queries, iqs)
+    assert len(out) == 1
+    # SentenceTransformerModel applies generic `Instruct: ...\nQuery: ...` wrap
+    assert out[0].startswith("Instruct:")
+    assert "Query: the cat sat" in out[0]
