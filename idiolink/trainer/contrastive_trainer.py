@@ -144,7 +144,7 @@ class ContrastiveTrainer:
         # Newer SentenceTransformer versions may include non-tensor metadata
         # (e.g. a `modality` string). Only move tensors to device.
         features = {
-            k: (v.to(self.device) if hasattr(v, "to") else v)
+            k: (v.to(self.device) if isinstance(v, torch.Tensor) else v)
             for k, v in features.items()
         }
         output = self.st_model(features)
@@ -200,19 +200,12 @@ class ContrastiveTrainer:
 
         # Query embeddings — per mode
         formatted_queries = self._format_query_strings(queries, iqs)
-        if self.config.mode == "sentence":
+        if self.config.mode in ("sentence", "instruction_sentence"):
             query_emb = self._encode_with_grad(formatted_queries)
-        elif self.config.mode == "instruction_sentence":
-            query_emb = self._encode_with_grad(formatted_queries)
-        elif self.config.mode == "span":
+        elif self.config.mode in ("span", "instruction_span"):
             query_emb = late_chunk_encode_with_grad(
                 self.model, formatted_queries, query_spans, device=self.device,
-                prefer_last_span=False,
-            )
-        elif self.config.mode == "instruction_span":
-            query_emb = late_chunk_encode_with_grad(
-                self.model, formatted_queries, query_spans, device=self.device,
-                prefer_last_span=True,
+                prefer_last_span=(self.config.mode == "instruction_span"),
             )
         else:
             raise ValueError(f"Unknown mode: {self.config.mode}")
