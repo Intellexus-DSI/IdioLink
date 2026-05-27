@@ -4,7 +4,7 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 import torch
@@ -27,7 +27,7 @@ class TrainingConfig:
     """Configuration for contrastive fine-tuning."""
 
     model_id: str = "sentence-transformers/all-MiniLM-L6-v2"
-    batch_size: int = 32
+    batch_size: Optional[int] = None
     lr: float = 2e-5
     max_epochs: int = 10
     warmup_steps: int = 100
@@ -66,12 +66,64 @@ class ContrastiveTrainer:
     """
 
     def __init__(self, config: TrainingConfig):
+        from ..models.registry import MODEL_REGISTRY, load_model
+
         self.config = config
         self.device = get_device(config.device)
         set_seed(config.seed)
 
-        # Load model
-        self.st_model = SentenceTransformer(config.model_id, device=self.device)
+        # Registry-based load: honours model_class, trust_remote_code,
+        # instruction_format, query_prefix, passage_prefix, batch_size.
+        registry_cfg = MODEL_REGISTRY.get(config.model_id)
+        if registry_cfg is not None and registry_cfg.model_class == "gritlm":
+            raise ValueError(
+                f"Fine-tuning is not supported for gritlm-class models "
+                f"({config.model_id}). GritLM is zero-shot-only in this codebase. "
+                f"Remove it from training.models or use a different model."
+            )
+
+        # instructor_pairs models can't be byte-equivalent to zero-shot in
+        # instruction modes: zero-shot encode_queries passes a list of [inst, text]
+        # pairs to SentenceTransformer.encode for the InstructorEmbedding pooling.
+        # We can only feed concatenated strings through tokenize+forward at train
+        # time. Fail fast for instruction modes; allow plain sentence/span.
+        if (
+            registry_cfg is not None
+            and registry_cfg.instruction_format == "instructor_pairs"
+            and config.mode in ("instruction_sentence", "instruction_span")
+        ):
+            raise ValueError(
+                f"Fine-tuning is not supported for instructor_pairs models in "
+                f"instruction modes ({config.model_id}, mode={config.mode}). "
+                f"Zero-shot inference uses list-of-pairs ST.encode which the trainer's "
+                f"gradient-flow tokenize+forward path cannot mirror byte-equivalently. "
+                f"Use mode=sentence or mode=span, or pick a different model."
+            )
+
+        # Resolve batch_size: CLI/config > registry > hardcoded 32 fallback.
+        if config.batch_size is None:
+            config.batch_size = registry_cfg.batch_size if registry_cfg else 32
+            source = "registry" if registry_cfg else "default"
+        else:
+            source = "config"
+        logger.info(
+            f"trainer: model={config.model_id} batch_size={config.batch_size} (from {source})"
+        )
+
+        self.model = load_model(config.model_id, device=self.device)
+        if not hasattr(self.model.model, "tokenize"):
+            raise ValueError(
+                f"Trainer requires self.model.model to be a SentenceTransformer "
+                f"(got {type(self.model.model).__name__}). "
+                f"Model class '{registry_cfg.model_class if registry_cfg else '?'}' is not trainable."
+            )
+        if not hasattr(self.model, "format_queries_for_late_chunking"):
+            raise ValueError(
+                f"Trainer requires the wrapper to implement "
+                f"format_queries_for_late_chunking (missing on {type(self.model).__name__})."
+            )
+
+        self.st_model = self.model.model  # underlying SentenceTransformer
         self.loss_fn = InfoNCELoss(temperature=config.temperature)
 
     def _encode_texts(self, texts: List[str]) -> torch.Tensor:

@@ -135,7 +135,8 @@ def main():
     # Resolve parameters (CLI > config > defaults)
     model_id = args.model or train_cfg.get("models", ["sentence-transformers/all-MiniLM-L6-v2"])[0]
     seeds = args.seeds or train_cfg.get("seeds", [42, 43, 44])
-    batch_size = args.batch_size or train_cfg.get("batch_size", 32)
+    # None lets ContrastiveTrainer pull from MODEL_REGISTRY[model_id].batch_size
+    batch_size = args.batch_size if args.batch_size is not None else train_cfg.get("batch_size")
     lr = args.lr or train_cfg.get("learning_rate", 2e-5)
     max_epochs = args.max_epochs or train_cfg.get("max_epochs", 10)
     warmup_steps = train_cfg.get("warmup_steps", 100)
