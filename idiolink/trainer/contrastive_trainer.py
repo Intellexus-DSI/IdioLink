@@ -22,6 +22,9 @@ from .losses import InfoNCELoss
 
 logger = logging.getLogger(__name__)
 
+TRAINER_VERSION = 2  # Bump when the trainer's encoding contract changes.
+                     # v2: per-model wrapper + passage_prefix + late_chunk gradient flow.
+
 
 @dataclass
 class TrainingConfig:
@@ -362,9 +365,10 @@ class ContrastiveTrainer:
             )
         return self._evaluate(test_queries_file, test_indexes_file)
 
-    def save_metrics(self, metrics: Dict[str, float], filename: str = "metrics.json"):
-        """Save metrics to JSON file in output directory."""
+    def save_metrics(self, metrics: Dict[str, Any], filename: str = "metrics.json"):
+        """Save metrics to JSON file in output directory (atomic write + version stamp)."""
+        from ..utils import atomic_write_json
         output_path = Path(self.config.output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        with open(output_path / filename, "w") as f:
-            json.dump(metrics, f, indent=2)
+        stamped = {**metrics, "_trainer_version": TRAINER_VERSION}
+        atomic_write_json(output_path / filename, stamped)

@@ -1,5 +1,7 @@
 """Tests for ContrastiveTrainer's wiring to load_model + registry."""
 
+from pathlib import Path
+
 import pytest
 import torch
 
@@ -291,3 +293,25 @@ def test_st_model_wrapper_class_is_deleted():
     """The internal _STModelWrapper class is removed (replaced by direct wrapper use)."""
     import idiolink.trainer.contrastive_trainer as ct_mod
     assert not hasattr(ct_mod, "_STModelWrapper")
+
+
+def test_save_metrics_writes_trainer_version(tmp_path: Path):
+    """Saved metrics.json contains _trainer_version stamp so matrix runner
+    can invalidate pre-fix checkpoints."""
+    import json
+    from idiolink.trainer.contrastive_trainer import TRAINER_VERSION
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="sentence", seed=42, device="cpu", max_epochs=1,
+        output_dir=str(tmp_path),
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+
+    trainer.save_metrics({"r_precision": 0.5})
+    saved = json.loads((tmp_path / "metrics.json").read_text())
+    assert saved["_trainer_version"] == TRAINER_VERSION
+    assert saved["r_precision"] == 0.5
