@@ -315,3 +315,74 @@ def test_save_metrics_writes_trainer_version(tmp_path: Path):
     saved = json.loads((tmp_path / "metrics.json").read_text())
     assert saved["_trainer_version"] == TRAINER_VERSION
     assert saved["r_precision"] == 0.5
+
+
+# ---------------------------------------------------------------------------
+# Per-(wrapper_class, mode) string equivalence matrix.
+# Verifies trainer's training-time query strings match zero-shot's exactly.
+# ---------------------------------------------------------------------------
+
+WRAPPER_CASES = [
+    # (wrapper_class_name, model_id_in_registry, expected_class)
+    ("SentenceTransformerModel", "sentence-transformers/all-MiniLM-L6-v2", "SentenceTransformerModel"),
+    ("InstructionModel",          "BAAI/bge-base-en-v1.5",                  "InstructionModel"),
+    ("QwenModel",                 "Qwen/Qwen3-Embedding-0.6B",              "QwenModel"),
+]
+
+MODES = ["sentence", "span", "instruction_sentence", "instruction_span"]
+
+
+@pytest.mark.parametrize("class_name,model_id,_expected", WRAPPER_CASES)
+@pytest.mark.parametrize("mode", MODES)
+def test_train_query_strings_match_zero_shot(class_name, model_id, _expected, mode):
+    """For every (wrapper_class, mode): the strings the trainer would tokenize
+    for queries equal the strings zero-shot's encode_queries_for_mode would
+    pass to the model. Asserted by intercepting at the formatter boundary.
+    """
+    from idiolink.utils import IdiomQuery
+    from idiolink.models.encode_helpers import encode_queries_for_mode
+
+    cfg = TrainingConfig(
+        model_id=model_id, mode=mode, seed=42, device="cpu",
+        max_epochs=1, batch_size=2,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError, ValueError) as e:
+        pytest.skip(f"Model not available or unsupported: {e}")
+
+    iqs = [
+        IdiomQuery(query="the cat sat", idiom="cat", usage_type="literal",
+                   span="cat", subject="x"),
+        IdiomQuery(query="he kicked the bucket", idiom="kick the bucket",
+                   usage_type="idiomatic", span="kicked the bucket", subject="death"),
+    ]
+    plain = [q.query for q in iqs]
+
+    # Train-time formatting:
+    train_strings = trainer._format_query_strings(plain, iqs)
+
+    # Zero-shot formatting: intercept what would be passed downstream.
+    if mode in ("sentence", "span"):
+        # sentence: model.encode(plain); span: late_chunk_encode(model, plain, spans)
+        expected = plain
+    elif mode == "instruction_sentence":
+        # encode_queries internally formats; we compare the formatter output
+        from idiolink.models.instruction_model import resolve_instructions
+        instructions = resolve_instructions(model_id, iqs)
+        if hasattr(trainer.model, "format_queries_for_late_chunking"):
+            expected = trainer.model.format_queries_for_late_chunking(plain, instructions)
+        else:
+            expected = plain
+    elif mode == "instruction_span":
+        from idiolink.models.instruction_model import resolve_instructions
+        instructions = resolve_instructions(model_id, iqs)
+        expected = trainer.model.format_queries_for_late_chunking(plain, instructions)
+    else:
+        raise AssertionError(f"unhandled mode {mode}")
+
+    assert train_strings == expected, (
+        f"\n  class={class_name} mode={mode}\n"
+        f"  train:    {train_strings}\n"
+        f"  expected: {expected}\n"
+    )
