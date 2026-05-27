@@ -4,7 +4,7 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import torch
@@ -16,7 +16,7 @@ from ..evaluator import Evaluator
 from ..retriever import DenseRetriever
 from ..utils import load_documents, load_queries, set_seed, get_device
 from ..models.instruction_model import resolve_instructions
-from ..models.late_chunking import late_chunk_encode
+from ..models.late_chunking import late_chunk_encode, late_chunk_encode_with_grad
 from .losses import InfoNCELoss
 
 logger = logging.getLogger(__name__)
@@ -41,20 +41,32 @@ class TrainingConfig:
     mode: str = "sentence"
 
 
-def collate_triplets(batch: List[Dict]) -> Dict[str, List[str]]:
+def collate_triplets(batch: List[Dict]) -> Dict[str, Any]:
     """Collate triplet dicts into batched lists of strings."""
     queries = [item["query"] for item in batch]
+    query_spans = [item.get("query_span") or "" for item in batch]
+    query_idioms = [item.get("query_idiom", "") for item in batch]
+    query_usages = [item.get("query_usage", "") for item in batch]
+    query_subjects = [item.get("query_subject", "") for item in batch]
     positives = [item["positive"] for item in batch]
-    # Pad negatives to same length
+
     max_neg = max(len(item["negatives"]) for item in batch) if batch else 0
     negatives = []
     for item in batch:
         negs = item["negatives"]
-        # Pad with last negative or empty string
         while len(negs) < max_neg:
             negs = negs + [negs[-1] if negs else ""]
         negatives.append(negs)
-    return {"queries": queries, "positives": positives, "negatives": negatives}
+
+    return {
+        "queries": queries,
+        "query_spans": query_spans,
+        "query_idioms": query_idioms,
+        "query_usages": query_usages,
+        "query_subjects": query_subjects,
+        "positives": positives,
+        "negatives": negatives,
+    }
 
 
 class ContrastiveTrainer:
@@ -129,7 +141,12 @@ class ContrastiveTrainer:
     def _encode_with_grad(self, texts: List[str]) -> torch.Tensor:
         """Tokenize + forward through the underlying SentenceTransformer with gradients."""
         features = self.st_model.tokenize(texts)
-        features = {k: v.to(self.device) for k, v in features.items()}
+        # Newer SentenceTransformer versions may include non-tensor metadata
+        # (e.g. a `modality` string). Only move tensors to device.
+        features = {
+            k: (v.to(self.device) if hasattr(v, "to") else v)
+            for k, v in features.items()
+        }
         output = self.st_model(features)
         return output["sentence_embedding"]
 
@@ -157,33 +174,64 @@ class ContrastiveTrainer:
         )
         return embeddings.to(self.device)
 
-    def _compute_loss(self, batch: Dict[str, List[str]]) -> torch.Tensor:
-        """Compute InfoNCE loss for a batch using gradient-enabled encoding."""
+    def _compute_loss(self, batch: Dict[str, Any]) -> torch.Tensor:
+        """Compute InfoNCE loss for a batch with per-mode query encoding and
+        doc-side passage_prefix application. Mirrors zero-shot inference path.
+        """
+        from ..utils import IdiomQuery
+
         queries = batch["queries"]
+        query_spans = batch["query_spans"]
         positives = batch["positives"]
-        negatives = batch["negatives"]  # List[List[str]]
-
-        # Encode all texts together for efficiency, with gradients
-        all_texts = queries + positives
-        has_negatives = negatives and len(negatives[0]) > 0
-        if has_negatives:
-            flat_negatives = [neg for neg_list in negatives for neg in neg_list]
-            all_texts = all_texts + flat_negatives
-
-        # Use the model's tokenizer + forward for gradient flow
-        features = self.st_model.tokenize(all_texts)
-        features = {k: v.to(self.device) for k, v in features.items()}
-        output = self.st_model(features)
-        embeddings = output["sentence_embedding"]
-
+        negatives = batch["negatives"]
         batch_size = len(queries)
-        query_emb = embeddings[:batch_size]
-        pos_emb = embeddings[batch_size : 2 * batch_size]
+
+        # Build IdiomQuery objects for instruction resolution.
+        iqs = [
+            IdiomQuery(
+                query=q,
+                idiom=batch["query_idioms"][i],
+                usage_type=batch["query_usages"][i],
+                span=batch["query_spans"][i],
+                subject=batch["query_subjects"][i],
+            )
+            for i, q in enumerate(queries)
+        ]
+
+        # Query embeddings — per mode
+        formatted_queries = self._format_query_strings(queries, iqs)
+        if self.config.mode == "sentence":
+            query_emb = self._encode_with_grad(formatted_queries)
+        elif self.config.mode == "instruction_sentence":
+            query_emb = self._encode_with_grad(formatted_queries)
+        elif self.config.mode == "span":
+            query_emb = late_chunk_encode_with_grad(
+                self.model, formatted_queries, query_spans, device=self.device,
+                prefer_last_span=False,
+            )
+        elif self.config.mode == "instruction_span":
+            query_emb = late_chunk_encode_with_grad(
+                self.model, formatted_queries, query_spans, device=self.device,
+                prefer_last_span=True,
+            )
+        else:
+            raise ValueError(f"Unknown mode: {self.config.mode}")
+
+        # Doc-side: apply wrapper's passage_prefix (defaults to "" via BaseEmbeddingModel)
+        passage_prefix = getattr(self.model, "passage_prefix", "")
+        if passage_prefix:
+            positives = [passage_prefix + p for p in positives]
+
+        pos_emb = self._encode_with_grad(positives)
 
         neg_emb = None
+        has_negatives = negatives and len(negatives[0]) > 0
         if has_negatives:
             num_neg = len(negatives[0])
-            neg_flat_emb = embeddings[2 * batch_size :]
+            flat_negatives = [neg for neg_list in negatives for neg in neg_list]
+            if passage_prefix:
+                flat_negatives = [passage_prefix + n for n in flat_negatives]
+            neg_flat_emb = self._encode_with_grad(flat_negatives)
             neg_emb = neg_flat_emb.view(batch_size, num_neg, -1)
 
         return self.loss_fn(query_emb, pos_emb, neg_emb)

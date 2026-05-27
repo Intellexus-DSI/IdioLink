@@ -146,3 +146,102 @@ def test_format_query_strings_applies_wrapper_format_for_instruction_modes():
     # SentenceTransformerModel applies generic `Instruct: ...\nQuery: ...` wrap
     assert out[0].startswith("Instruct:")
     assert "Query: the cat sat" in out[0]
+
+
+def test_compute_loss_applies_passage_prefix_to_docs():
+    """If the wrapper has passage_prefix set, _compute_loss prepends it to
+    positives and negatives before encoding.
+    """
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="sentence", seed=42, device="cpu", max_epochs=1, batch_size=2,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+    trainer.model.passage_prefix = "passage: "
+
+    captured = []
+    original_encode = trainer._encode_with_grad
+    def capture(texts):
+        captured.append(list(texts))
+        return original_encode(texts)
+    trainer._encode_with_grad = capture
+
+    batch = {
+        "queries": ["q1", "q2"],
+        "query_spans": ["span1", "span2"],
+        "query_idioms": ["", ""],
+        "query_usages": ["literal", "literal"],
+        "query_subjects": ["", ""],
+        "positives": ["doc1", "doc2"],
+        "negatives": [["n1"], ["n2"]],
+    }
+    trainer._compute_loss(batch)
+
+    # First call: queries (no prefix in sentence mode). Subsequent: docs with prefix.
+    assert captured[0] == ["q1", "q2"]
+    # Positives and negatives both should have the prefix
+    for c in captured[1:]:
+        assert all(t.startswith("passage: ") for t in c), f"missing prefix in {c}"
+
+
+def test_compute_loss_span_mode_uses_late_chunk_with_grad():
+    """span mode routes queries through late_chunk_encode_with_grad."""
+    from unittest.mock import patch
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="span", seed=42, device="cpu", max_epochs=1, batch_size=2,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+
+    with patch("idiolink.trainer.contrastive_trainer.late_chunk_encode_with_grad") as mock_lc:
+        mock_lc.return_value = torch.zeros((2, trainer.model.embedding_dim), requires_grad=True)
+        batch = {
+            "queries": ["a b c d", "x y z"],
+            "query_spans": ["b", "z"],
+            "query_idioms": ["", ""],
+            "query_usages": ["literal", "literal"],
+            "query_subjects": ["", ""],
+            "positives": ["p1", "p2"],
+            "negatives": [[], []],
+        }
+        trainer._compute_loss(batch)
+        mock_lc.assert_called_once()
+        # prefer_last_span should be False for plain `span` mode
+        kwargs = mock_lc.call_args.kwargs
+        assert kwargs.get("prefer_last_span", False) is False
+
+
+def test_compute_loss_instruction_span_uses_prefer_last_span_true():
+    """instruction_span mode calls late_chunk_encode_with_grad with prefer_last_span=True."""
+    from unittest.mock import patch
+
+    cfg = TrainingConfig(
+        model_id="sentence-transformers/all-MiniLM-L6-v2",
+        mode="instruction_span", seed=42, device="cpu", max_epochs=1, batch_size=2,
+    )
+    try:
+        trainer = ContrastiveTrainer(cfg)
+    except (OSError, RuntimeError, ImportError) as e:
+        pytest.skip(f"Model not available: {e}")
+
+    with patch("idiolink.trainer.contrastive_trainer.late_chunk_encode_with_grad") as mock_lc:
+        mock_lc.return_value = torch.zeros((1, trainer.model.embedding_dim), requires_grad=True)
+        batch = {
+            "queries": ["the cat sat on the mat"],
+            "query_spans": ["cat"],
+            "query_idioms": [""],
+            "query_usages": ["literal"],
+            "query_subjects": [""],
+            "positives": ["p1"],
+            "negatives": [[]],
+        }
+        trainer._compute_loss(batch)
+        mock_lc.assert_called_once()
+        assert mock_lc.call_args.kwargs["prefer_last_span"] is True
