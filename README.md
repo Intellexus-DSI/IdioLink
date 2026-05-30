@@ -106,7 +106,7 @@ Four zero-shot query configurations. Documents are **always indexed as full sent
 
 Plus:
 - **BM25** lexical baseline (`run_bm25.py`)
-- **Contrastive fine-tuning** for 5 models × 4 modes × 3 seeds via `run_fine_tune_matrix.py` (single-cell debugging via `run_fine_tune.py`)
+- **Contrastive fine-tuning** for the reported training models via `run_fine_tune.py`
 
 ---
 
@@ -218,24 +218,16 @@ All CLI arguments override values from `config.yaml`.
 - Seeds: 42, 43, 44 (results reported as mean ± std)
 - Hard negatives: same PIE, opposite usage type
 
-### Single run (debugging)
+### Run Fine-Tuning
 
 ```bash
 python run_fine_tune.py --model sentence-transformers/all-MiniLM-L6-v2 --mode sentence --seeds 42
+python run_fine_tune.py --model Qwen/Qwen3-Embedding-0.6B --mode instruction_sentence --seeds 42 43 44
 ```
 
-### Full matrix (5 models × 4 modes × 3 seeds = 60 runs)
-
-```bash
-python run_fine_tune_matrix.py                       # everything from config.yaml
-python run_fine_tune_matrix.py --models <id> ...     # subset of models
-python run_fine_tune_matrix.py --modes sentence span # subset of modes
-python run_fine_tune_matrix.py --seeds 42            # subset of seeds
-python run_fine_tune_matrix.py --dry_run             # see what would run
-python run_fine_tune_matrix.py --force               # recompute already-done cells
-```
-
-Resumability: each `(model, mode, seed)` cell writes `results/fine_tuning/<slug>/<mode>/seed_<n>/metrics.json` with a `_trainer_version` stamp. Re-running skips cells whose metrics.json exists with the current trainer version; bump `TRAINER_VERSION` in `idiolink/trainer/contrastive_trainer.py` to invalidate stale checkpoints.
+Outputs are written to `results/fine_tuning/<slug>/<mode>/seed_<n>/metrics.json`.
+Each metrics file includes a `_trainer_version` stamp so stale checkpoints can be
+identified when the trainer's encoding contract changes.
 
 Batch size: pulled from `MODEL_REGISTRY[model_id].batch_size` by default (overrideable via `--batch_size` or `training.batch_size` in config.yaml). Per-model defaults prevent OOM on large models.
 
@@ -260,8 +252,8 @@ python run_bm25.py --query_mode span --tune
 # 2. Zero-shot dense retrieval (all 24 models × 4 modes)
 python run_all.py
 
-# 3. Fine-tuning (5 models × 4 modes × 3 seeds = 60 runs)
-python run_fine_tune_matrix.py    # resumable; see "Fine-Tuning" section for flags
+# 3. Fine-tuning reported models/modes
+python run_fine_tune.py --model sentence-transformers/all-MiniLM-L6-v2 --mode sentence --seeds 42 43 44
 
 # 4. Generate paper tables and figures
 python analysis/generate_zero_shot_table.py

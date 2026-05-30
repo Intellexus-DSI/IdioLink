@@ -367,8 +367,7 @@ def test_st_model_wrapper_class_is_deleted():
 
 
 def test_save_metrics_writes_trainer_version(tmp_path: Path):
-    """Saved metrics.json contains _trainer_version stamp so matrix runner
-    can invalidate pre-fix checkpoints."""
+    """Saved metrics.json contains _trainer_version to identify stale checkpoints."""
     import json
     from idiolink.trainer.contrastive_trainer import TRAINER_VERSION
 
