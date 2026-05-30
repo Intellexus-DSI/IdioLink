@@ -11,6 +11,7 @@ class BaseEmbeddingModel(ABC):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.embedding_dim: int = 0
+        self.passage_prefix: str = ""
 
     @abstractmethod
     def encode(self, texts: List[str]) -> np.ndarray:

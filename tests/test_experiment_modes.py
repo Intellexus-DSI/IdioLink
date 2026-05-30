@@ -1,15 +1,11 @@
 """Tests that experiment modes follow the paper's query/document encoding contract."""
 
 from dataclasses import dataclass
-import sys
-from unittest.mock import MagicMock
 
 import numpy as np
 
-sys.modules.setdefault("sentence_transformers", MagicMock())
-sys.modules.setdefault("transformers", MagicMock())
-
 import run_all
+from idiolink.models import encode_helpers
 from idiolink.utils import IdiomQuery
 
 
@@ -84,11 +80,11 @@ def test_span_mode_uses_late_chunking_with_full_query_context(monkeypatch):
         })
         return np.ones((len(documents), 3), dtype=np.float32)
 
-    monkeypatch.setattr(run_all, "late_chunk_encode", fake_late_chunk_encode)
+    monkeypatch.setattr(encode_helpers, "late_chunk_encode", fake_late_chunk_encode)
 
     queries, doc_sentences, docs = _fixture_data()
     model = RecordingModel()
-    run_all.run_single("recording-model", model, "span", queries, doc_sentences, docs, 2, "cpu")
+    run_all.run_single(model, "span", queries, doc_sentences, docs, 2, "cpu")
 
     assert calls
     assert calls[0]["documents"] == [q.query for q in queries]
@@ -101,7 +97,6 @@ def test_instruction_sentence_uses_per_query_instructions():
     model = RecordingModel()
 
     run_all.run_single(
-        "recording-model",
         model,
         "instruction_sentence",
         queries,
@@ -128,12 +123,11 @@ def test_instruction_span_formats_queries_before_late_chunking(monkeypatch):
         })
         return np.ones((len(documents), 3), dtype=np.float32)
 
-    monkeypatch.setattr(run_all, "late_chunk_encode", fake_late_chunk_encode)
+    monkeypatch.setattr(encode_helpers, "late_chunk_encode", fake_late_chunk_encode)
 
     queries, doc_sentences, docs = _fixture_data()
     model = RecordingModel()
     run_all.run_single(
-        "recording-model",
         model,
         "instruction_span",
         queries,
@@ -147,4 +141,3 @@ def test_instruction_span_formats_queries_before_late_chunking(monkeypatch):
     assert calls[0]["prefer_last_span"] is True
     assert calls[0]["documents"][0].startswith("Instruct:")
     assert queries[0].query in calls[0]["documents"][0]
-

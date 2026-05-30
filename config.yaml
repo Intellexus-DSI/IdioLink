@@ -38,7 +38,8 @@ training:
     - Qwen/Qwen3-Embedding-0.6B
   modes: [sentence, span, instruction_sentence, instruction_span]
   seeds: [42, 43, 44]
-  batch_size: 32
+  batch_size: null   # null → use MODEL_REGISTRY[model_id].batch_size per-model;
+                     # override per-invocation with --batch_size on CLI.
   max_epochs: 10
   learning_rate: 2.0e-5
   warmup_steps: 100

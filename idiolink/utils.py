@@ -1,6 +1,7 @@
 """Utility functions for config loading, file I/O, and device detection."""
 
 import json
+import os
 import random
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -88,3 +89,17 @@ def set_seed(seed: int):
 def model_slug(model_id: str) -> str:
     """Convert model ID to filesystem-safe slug."""
     return model_id.replace("/", "__")
+
+
+def atomic_write_json(path: Path, payload: Any) -> None:
+    """Write JSON atomically: stage to .tmp then os.replace onto target.
+
+    Survives mid-write interruption (Ctrl-C / OOM / kill) — without this, a
+    truncated metrics.json silently passes the resume-check `path.exists()`
+    and corrupts the aggregated results.
+    """
+    path = Path(path)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+    os.replace(tmp, path)

@@ -160,3 +160,19 @@ class TestLoadModel:
     def test_load_unknown_model_raises(self):
         with pytest.raises(ValueError, match="Unknown model"):
             load_model("nonexistent/model", device="cpu")
+
+
+def test_all_loaded_wrappers_expose_passage_prefix():
+    """Every wrapper must have a `passage_prefix` attribute (defaults to '')
+    so trainer can read it uniformly via getattr without try/except.
+    """
+    from idiolink.models.base import BaseEmbeddingModel
+
+    class _Stub(BaseEmbeddingModel):
+        def encode(self, texts):
+            import numpy as np
+            return np.zeros((len(texts), 4))
+
+    stub = _Stub("stub")
+    assert hasattr(stub, "passage_prefix")
+    assert stub.passage_prefix == ""

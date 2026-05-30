@@ -23,8 +23,7 @@ from idiolink.utils import (
     model_slug,
 )
 from idiolink.models.registry import MODEL_REGISTRY, load_model
-from idiolink.models.instruction_model import resolve_instructions
-from idiolink.models.late_chunking import late_chunk_encode
+from idiolink.models.encode_helpers import encode_queries_for_mode
 from idiolink.retriever import DenseRetriever
 from idiolink.evaluator import Evaluator
 
@@ -34,56 +33,20 @@ logger = logging.getLogger(__name__)
 QUERY_MODES = ["sentence", "span", "instruction_sentence", "instruction_span"]
 
 
-def run_single(model_id, model, query_mode, idiom_queries, doc_sentences, doc_metadata, top_k, device):
+def run_single(model, query_mode, idiom_queries, doc_sentences, doc_metadata, top_k, device):
     """Run a single model x mode combination. Returns metrics dict or None on failure."""
     retriever = DenseRetriever(model)
     retriever.index(doc_sentences, doc_metadata)
 
-    spans = [q.span if q.span else q.query for q in idiom_queries]
-    query_sentences = [q.query for q in idiom_queries]
-    instructions = resolve_instructions(model_id, idiom_queries)
-
-    if query_mode == "sentence":
-        query_texts = query_sentences
-        query_embeddings = model.encode(query_texts)
-    elif query_mode == "span":
-        query_texts = query_sentences
-        query_embeddings = late_chunk_encode(model, query_texts, spans, device=device)
-    elif query_mode == "instruction_sentence":
-        query_texts = query_sentences
-        if hasattr(model, "encode_queries"):
-            query_embeddings = model.encode_queries(query_texts, spans=spans, instruction=instructions)
-        else:
-            query_embeddings = model.encode(query_texts)
-    elif query_mode == "instruction_span":
-        query_texts = query_sentences
-        if hasattr(model, "encode_queries"):
-            chunking_texts = (
-                model.format_queries_for_late_chunking(query_texts, instructions)
-                if hasattr(model, "format_queries_for_late_chunking")
-                else query_texts
-            )
-            query_embeddings = late_chunk_encode(
-                model,
-                chunking_texts,
-                spans,
-                device=device,
-                prefer_last_span=True,
-            )
-        else:
-            query_embeddings = model.encode(query_texts)
-    else:
-        raise ValueError(f"Unknown query_mode: {query_mode}")
+    query_texts, query_embeddings = encode_queries_for_mode(
+        model, query_mode, idiom_queries, device,
+    )
 
     results = retriever.retrieve(query_texts, top_k=top_k, query_embeddings=query_embeddings)
-
-    # Remap
-    mapped_results = {}
-    for q, qt in zip(idiom_queries, query_texts):
-        mapped_results[q.query] = results[qt]
+    mapped = {q.query: results[t] for q, t in zip(idiom_queries, query_texts)}
 
     evaluator = Evaluator(idiom_queries, [{"id": m["id"], **m} for m in doc_metadata])
-    return evaluator.evaluate(mapped_results)
+    return evaluator.evaluate(mapped)
 
 
 def main():
@@ -128,7 +91,7 @@ def main():
             logger.info(f"  Running {model_id} / {query_mode}")
             try:
                 metrics = run_single(
-                    model_id, model, query_mode,
+                    model, query_mode,
                     idiom_queries, doc_sentences, doc_metadata, top_k, device,
                 )
             except Exception as e:

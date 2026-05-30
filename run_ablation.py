@@ -29,11 +29,11 @@ import numpy as np
 
 from idiolink.ablation import ABLATION_PRESETS, filter_docs_by_usage
 from idiolink.evaluator import Evaluator
-from idiolink.models.instruction_model import resolve_instructions
-from idiolink.models.late_chunking import late_chunk_encode
+from idiolink.models.encode_helpers import encode_queries_for_mode
 from idiolink.models.registry import MODEL_REGISTRY, load_model
 from idiolink.retriever import DenseRetriever
 from idiolink.utils import (
+    atomic_write_json,
     get_device,
     load_config,
     load_documents,
@@ -46,19 +46,6 @@ from run_bm25 import build_evaluator_docs, run_bm25, run_tuning
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-
-def _atomic_write_json(path: Path, payload: dict) -> None:
-    """Write JSON atomically: stage to .tmp and os.replace() onto the target.
-
-    Survives mid-write interruption (Ctrl-C / OOM / kill) — without this, a
-    truncated metrics.json silently passes the resume-check `path.exists()`
-    and corrupts the aggregated full_results.csv.
-    """
-    import os
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    with open(tmp, "w") as f:
-        json.dump(payload, f, indent=2)
-    os.replace(tmp, path)
 
 QUERY_MODES = ["sentence", "span", "instruction_sentence", "instruction_span"]
 BM25_MODES = ["sentence", "span"]
@@ -80,38 +67,6 @@ def select_models(max_size_b: float = 7.0) -> List[str]:
         mid for mid, cfg in MODEL_REGISTRY.items()
         if parse_size_b(cfg.size_params) < max_size_b
     ]
-
-
-def encode_queries_for_mode(model, query_mode: str, idiom_queries, device: str):
-    """Encode queries for the given mode. Returns (query_texts, query_embeddings)."""
-    spans = [q.span if q.span else q.query for q in idiom_queries]
-    query_texts = [q.query for q in idiom_queries]
-    instructions = resolve_instructions(model.model_id, idiom_queries)
-
-    if query_mode == "sentence":
-        return query_texts, model.encode(query_texts)
-    if query_mode == "span":
-        return query_texts, late_chunk_encode(model, query_texts, spans, device=device)
-    if query_mode == "instruction_sentence":
-        if hasattr(model, "encode_queries"):
-            embs = model.encode_queries(query_texts, spans=spans, instruction=instructions)
-        else:
-            embs = model.encode(query_texts)
-        return query_texts, embs
-    if query_mode == "instruction_span":
-        if hasattr(model, "encode_queries"):
-            chunking_texts = (
-                model.format_queries_for_late_chunking(query_texts, instructions)
-                if hasattr(model, "format_queries_for_late_chunking")
-                else query_texts
-            )
-            embs = late_chunk_encode(
-                model, chunking_texts, spans, device=device, prefer_last_span=True,
-            )
-        else:
-            embs = model.encode(query_texts)
-        return query_texts, embs
-    raise ValueError(f"Unknown query_mode: {query_mode}")
 
 
 def flatten_metrics(metrics: dict, model_id: str, query_mode: str, index_slug: str) -> dict:
@@ -230,7 +185,7 @@ def run_dense_for_model(
             # Persist per-run metrics.json
             out_dir = results_dir / "ablation" / slug / model_slug(model_id) / mode
             out_dir.mkdir(parents=True, exist_ok=True)
-            _atomic_write_json(out_dir / "metrics.json", metrics)
+            atomic_write_json(out_dir / "metrics.json", metrics)
 
             row = flatten_metrics(metrics, model_id, mode, slug)
             rows.append(row)
@@ -291,8 +246,8 @@ def run_bm25_for_preset(
 
         out_dir = results_dir / "ablation" / slug / "bm25" / mode
         out_dir.mkdir(parents=True, exist_ok=True)
-        _atomic_write_json(out_dir / "metrics.json", metrics)
-        _atomic_write_json(out_dir / "tuning_results.json", tuning_results)
+        atomic_write_json(out_dir / "metrics.json", metrics)
+        atomic_write_json(out_dir / "tuning_results.json", tuning_results)
 
         row = flatten_metrics(metrics, "bm25", mode, slug)
         rows.append(row)

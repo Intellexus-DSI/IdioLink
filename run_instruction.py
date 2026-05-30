@@ -19,8 +19,7 @@ from idiolink.utils import (
     model_slug,
 )
 from idiolink.models.registry import MODEL_REGISTRY, load_model
-from idiolink.models.instruction_model import resolve_instructions
-from idiolink.models.late_chunking import late_chunk_encode
+from idiolink.models.encode_helpers import encode_queries_for_mode
 from idiolink.retriever import DenseRetriever
 from idiolink.evaluator import Evaluator
 
@@ -65,35 +64,9 @@ def main():
     print(f"Indexing {len(doc_sentences)} documents...")
     retriever.index(doc_sentences, doc_metadata)
 
-    # Build instruction per query (per-model override via resolver)
-    spans = [q.span if q.span else q.query for q in idiom_queries]
-    instructions = resolve_instructions(model_id, idiom_queries)
-
-    query_texts = [q.query for q in idiom_queries]
-
-    # Check if model supports instruction encoding
-    if hasattr(model, "encode_queries"):
-        # For instruction_span with late chunking
-        if query_mode == "instruction_span":
-            chunking_texts = (
-                model.format_queries_for_late_chunking(query_texts, instructions)
-                if hasattr(model, "format_queries_for_late_chunking")
-                else query_texts
-            )
-            query_embeddings = late_chunk_encode(
-                model,
-                chunking_texts,
-                spans,
-                device=device,
-                prefer_last_span=True,
-            )
-        else:
-            query_embeddings = model.encode_queries(
-                query_texts, spans=spans, instruction=instructions
-            )
-    else:
-        # Fallback for models without encode_queries
-        query_embeddings = model.encode(query_texts)
+    query_texts, query_embeddings = encode_queries_for_mode(
+        model, query_mode, idiom_queries, device,
+    )
 
     # Retrieve
     print(f"Retrieving for {len(query_texts)} queries...")
