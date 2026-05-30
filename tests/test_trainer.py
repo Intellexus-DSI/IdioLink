@@ -366,25 +366,175 @@ def test_st_model_wrapper_class_is_deleted():
     assert not hasattr(ct_mod, "_STModelWrapper")
 
 
-def test_save_metrics_writes_trainer_version(tmp_path: Path):
-    """Saved metrics.json contains _trainer_version to identify stale checkpoints."""
+def test_save_metrics_writes_exact_metrics(tmp_path: Path):
+    """Saved metrics.json contains the provided metrics without metadata stamps."""
     import json
-    from idiolink.trainer.contrastive_trainer import TRAINER_VERSION
 
-    cfg = TrainingConfig(
-        model_id="sentence-transformers/all-MiniLM-L6-v2",
-        mode="sentence", seed=42, device="cpu", max_epochs=1,
-        output_dir=str(tmp_path),
-    )
-    try:
-        trainer = ContrastiveTrainer(cfg)
-    except (OSError, RuntimeError, ImportError) as e:
-        pytest.skip(f"Model not available: {e}")
+    trainer = object.__new__(ContrastiveTrainer)
+    trainer.config = TrainingConfig(output_dir=str(tmp_path))
 
     trainer.save_metrics({"r_precision": 0.5})
     saved = json.loads((tmp_path / "metrics.json").read_text())
-    assert saved["_trainer_version"] == TRAINER_VERSION
-    assert saved["r_precision"] == 0.5
+    assert saved == {"r_precision": 0.5}
+
+
+class _TinySentenceTransformer(torch.nn.Module):
+    """Small differentiable stand-in for SentenceTransformer sanity checks."""
+
+    def __init__(self, dim: int = 8):
+        super().__init__()
+        self.embedding = torch.nn.Embedding(256, dim)
+        self.tokenize_calls = []
+        self.preprocess_calls = []
+
+    def _ids(self, texts):
+        rows = []
+        for text in texts:
+            values = [(ord(ch) % 255) + 1 for ch in text[:12]]
+            values = values or [0]
+            rows.append(values + [0] * (12 - len(values)))
+        return torch.tensor(rows, dtype=torch.long)
+
+    def tokenize(self, texts):
+        self.tokenize_calls.append(list(texts))
+        return {"input_ids": self._ids(texts)}
+
+    def preprocess(self, texts, prompt):
+        self.preprocess_calls.append((list(texts), prompt))
+        features = self.tokenize(texts)
+        features["prompt_ids"] = self._ids([prompt] * len(texts))
+        features["prompt_text"] = prompt
+        return features
+
+    def forward(self, features):
+        token_emb = self.embedding(features["input_ids"]).mean(dim=1)
+        prompt_ids = features.get("prompt_ids")
+        if prompt_ids is not None:
+            token_emb = token_emb + 0.1 * self.embedding(prompt_ids).mean(dim=1)
+        return {"sentence_embedding": token_emb}
+
+
+def _make_tiny_trainer(model_id: str, mode: str, wrapper_attrs: dict):
+    from types import SimpleNamespace
+    from idiolink.trainer.losses import InfoNCELoss
+
+    st_model = _TinySentenceTransformer()
+    attrs = {
+        "model": st_model,
+        "model_id": model_id,
+        "passage_prefix": "",
+        "format_queries_for_late_chunking": lambda texts, instructions: [
+            f"Instruct: {inst}\nQuery: {text}"
+            for text, inst in zip(
+                texts,
+                instructions if isinstance(instructions, list)
+                else [instructions] * len(texts),
+            )
+        ],
+    }
+    attrs.update(wrapper_attrs)
+    wrapper = SimpleNamespace(**attrs)
+
+    trainer = object.__new__(ContrastiveTrainer)
+    trainer.config = TrainingConfig(
+        model_id=model_id,
+        mode=mode,
+        seed=42,
+        device="cpu",
+        batch_size=2,
+        max_epochs=1,
+    )
+    trainer.device = torch.device("cpu")
+    trainer.model = wrapper
+    trainer.st_model = st_model
+    trainer.loss_fn = InfoNCELoss(temperature=0.2)
+    return trainer
+
+
+@pytest.mark.parametrize(
+    "name,model_id,mode,wrapper_attrs,expect_prompt,expect_passage_prefix",
+    [
+        (
+            "plain_sentence_transformer",
+            "sentence-transformers/all-MiniLM-L6-v2",
+            "sentence",
+            {},
+            False,
+            "",
+        ),
+        (
+            "e5_passage_prefix",
+            "intfloat/e5-base-v2",
+            "sentence",
+            {"passage_prefix": "passage: "},
+            False,
+            "passage: ",
+        ),
+        (
+            "bge_prompt_prefix",
+            "BAAI/bge-base-en-v1.5",
+            "instruction_sentence",
+            {"instruction_format": type("Fmt", (), {"value": "prompt_prefix"})()},
+            True,
+            "",
+        ),
+        (
+            "qwen_prompt_method",
+            "Qwen/Qwen3-Embedding-0.6B",
+            "instruction_sentence",
+            {"_query_prompt": lambda instruction: f"Instruct: {instruction}\nQuery:"},
+            True,
+            "",
+        ),
+    ],
+)
+def test_sanity_optimizer_step_for_small_wrapper_contracts(
+    name,
+    model_id,
+    mode,
+    wrapper_attrs,
+    expect_prompt,
+    expect_passage_prefix,
+):
+    """Run one optimizer-backed training step across representative wrappers."""
+    trainer = _make_tiny_trainer(model_id, mode, wrapper_attrs)
+    optimizer = torch.optim.AdamW(trainer.st_model.parameters(), lr=1e-2)
+
+    batch = {
+        "queries": ["the cat sat", "she dropped the ball"],
+        "query_spans": ["cat", "dropped the ball"],
+        "query_idioms": ["cat", "drop the ball"],
+        "query_usages": ["literal", "idiomatic"],
+        "query_subjects": ["animal", "failure"],
+        "positives": ["a feline rested", "she made a mistake"],
+        "negatives": [["the bucket fell"], ["an unrelated sentence"]],
+    }
+
+    before = [p.detach().clone() for p in trainer.st_model.parameters()]
+    optimizer.zero_grad()
+    loss = trainer._compute_loss(batch)
+    assert torch.isfinite(loss), f"{name} produced a non-finite loss"
+    loss.backward()
+    optimizer.step()
+
+    after = list(trainer.st_model.parameters())
+    assert any(not torch.equal(a, b) for a, b in zip(after, before)), (
+        f"{name} did not update any parameters"
+    )
+
+    if expect_prompt:
+        assert trainer.st_model.preprocess_calls, f"{name} did not use prompt preprocessing"
+        query_texts = [text for texts, _ in trainer.st_model.preprocess_calls for text in texts]
+        assert query_texts == batch["queries"]
+        assert all("Instruct:" not in text and "Query:" not in text for text in query_texts)
+    else:
+        assert not trainer.st_model.preprocess_calls
+
+    if expect_passage_prefix:
+        encoded_texts = [text for call in trainer.st_model.tokenize_calls for text in call]
+        docs = batch["positives"] + [neg for negs in batch["negatives"] for neg in negs]
+        for doc in docs:
+            assert expect_passage_prefix + doc in encoded_texts
 
 
 # ---------------------------------------------------------------------------

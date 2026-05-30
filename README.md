@@ -226,8 +226,6 @@ python run_fine_tune.py --model Qwen/Qwen3-Embedding-0.6B --mode instruction_sen
 ```
 
 Outputs are written to `results/fine_tuning/<slug>/<mode>/seed_<n>/metrics.json`.
-Each metrics file includes a `_trainer_version` stamp so stale checkpoints can be
-identified when the trainer's encoding contract changes.
 
 Batch size: pulled from `MODEL_REGISTRY[model_id].batch_size` by default (overrideable via `--batch_size` or `training.batch_size` in config.yaml). Per-model defaults prevent OOM on large models.
 
