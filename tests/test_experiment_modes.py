@@ -1,13 +1,8 @@
 """Tests that experiment modes follow the paper's query/document encoding contract."""
 
 from dataclasses import dataclass
-import sys
-from unittest.mock import MagicMock
 
 import numpy as np
-
-sys.modules.setdefault("sentence_transformers", MagicMock())
-sys.modules.setdefault("transformers", MagicMock())
 
 import run_all
 from idiolink.models import encode_helpers
@@ -146,4 +141,3 @@ def test_instruction_span_formats_queries_before_late_chunking(monkeypatch):
     assert calls[0]["prefer_last_span"] is True
     assert calls[0]["documents"][0].startswith("Instruct:")
     assert queries[0].query in calls[0]["documents"][0]
-

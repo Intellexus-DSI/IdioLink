@@ -189,6 +189,77 @@ def test_compute_loss_applies_passage_prefix_to_docs():
         assert all(t.startswith("passage: ") for t in c), f"missing prefix in {c}"
 
 
+def test_instruction_sentence_prompt_models_use_prompt_api_for_queries():
+    """Prompt-prefix models must train through ST's prompt path, not by
+    concatenating prompt text into the query string. Qwen/BGE pooling can depend
+    on prompt metadata that only SentenceTransformer.preprocess(prompt=...)
+    preserves.
+    """
+    from types import SimpleNamespace
+
+    from idiolink.utils import IdiomQuery
+
+    queries = ["the cat sat", "he kicked the bucket"]
+    iqs = [
+        IdiomQuery(query=queries[0], idiom="cat", usage_type="literal",
+                   span="cat", subject=""),
+        IdiomQuery(query=queries[1], idiom="kick the bucket",
+                   usage_type="idiomatic", span="kicked the bucket", subject=""),
+    ]
+
+    cases = [
+        (
+            "Qwen/Qwen3-Embedding-0.6B",
+            SimpleNamespace(
+                _query_prompt=lambda instruction: f"Instruct: {instruction}\nQuery:"
+            ),
+        ),
+        (
+            "BAAI/bge-base-en-v1.5",
+            SimpleNamespace(instruction_format=SimpleNamespace(value="prompt_prefix")),
+        ),
+    ]
+
+    for model_id, fake_wrapper in cases:
+        trainer = object.__new__(ContrastiveTrainer)
+        trainer.config = TrainingConfig(
+            model_id=model_id,
+            mode="instruction_sentence",
+            seed=42,
+            device="cpu",
+            max_epochs=1,
+            batch_size=2,
+        )
+        trainer.model = fake_wrapper
+
+        captured = []
+
+        def encode_with_prompt(texts, prompt):
+            captured.append((list(texts), prompt))
+            return torch.ones((len(texts), 2), requires_grad=True)
+
+        def encode_without_prompt(_texts):
+            raise AssertionError(f"{model_id} fell back to concatenated query strings")
+
+        trainer._encode_with_prompt_grad = encode_with_prompt
+        trainer._encode_with_grad = encode_without_prompt
+
+        embeddings = trainer._encode_instruction_sentence_with_grad(queries, iqs)
+
+        assert embeddings.shape == (2, 2)
+        assert [text for texts, _ in captured for text in texts] == queries
+        assert all("Instruct:" not in text for texts, _ in captured for text in texts)
+        assert all("Query:" not in text for texts, _ in captured for text in texts)
+        assert all(prompt for _, prompt in captured)
+        if model_id.startswith("Qwen/"):
+            assert all(prompt.startswith("Instruct: ") for _, prompt in captured)
+            assert all(prompt.endswith("\nQuery:") for _, prompt in captured)
+        else:
+            assert captured == [
+                (queries, "Represent this sentence for searching relevant passages: ")
+            ]
+
+
 def test_compute_loss_span_mode_uses_late_chunk_with_grad():
     """span mode routes queries through late_chunk_encode_with_grad."""
     from unittest.mock import patch

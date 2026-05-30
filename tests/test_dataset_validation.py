@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
@@ -16,6 +18,20 @@ EXPECTED_SPLITS = {
 REQUIRED_FIELDS = {"id", "sentence", "idiom", "span", "subject", "usage", "is_gold"}
 DOC_USAGES = {"literal", "idiomatic", "simplification", "sense"}
 QUERY_USAGES = {"literal", "idiomatic"}
+
+
+def _core_data_available() -> bool:
+    return all(
+        (DATA_DIR / split / filename).exists()
+        for split in ("train", "val", "test")
+        for filename in ("indexes.json", "queries.json")
+    )
+
+
+pytestmark = pytest.mark.skipif(
+    not _core_data_available(),
+    reason="Downloaded benchmark data is absent; run the data setup before release validation.",
+)
 
 
 def _load_json(path: Path):
@@ -83,4 +99,3 @@ def test_core_data_files_exist():
     for split in ("train", "val", "test"):
         assert (DATA_DIR / split / "indexes.json").exists(), f"Missing {split}/indexes.json"
         assert (DATA_DIR / split / "queries.json").exists(), f"Missing {split}/queries.json"
-

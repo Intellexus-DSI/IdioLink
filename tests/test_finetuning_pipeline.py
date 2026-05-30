@@ -1,14 +1,9 @@
 """Tests for fine-tuning data shaping and result aggregation contracts."""
 
 import json
-import sys
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
-
-sys.modules.setdefault("sentence_transformers", MagicMock())
-sys.modules.setdefault("transformers", MagicMock())
 
 from analysis.generate_finetuning_table import collect_results
 from idiolink.trainer.datasets import TripletDataset
@@ -105,4 +100,3 @@ def test_finetuning_table_reads_nested_test_metrics(tmp_path):
 
     assert results[model]["sentence"]["r_precision"]["mean"] == pytest.approx(0.5)
     assert results[model]["sentence"]["ndcg@10"]["mean"] == pytest.approx(0.75)
-

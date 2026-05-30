@@ -144,6 +144,25 @@ class ContrastiveTrainer:
     def _encode_with_grad(self, texts: List[str]) -> torch.Tensor:
         """Tokenize + forward through the underlying SentenceTransformer with gradients."""
         features = self.st_model.tokenize(texts)
+        return self._forward_features_with_grad(features)
+
+    def _encode_with_prompt_grad(self, texts: List[str], prompt: str) -> torch.Tensor:
+        """Mirror SentenceTransformer.encode(..., prompt=...) while keeping gradients.
+
+        The prompt-aware path can add metadata such as ``prompt_length`` that pooling
+        layers use. Concatenating the prompt into ``texts`` would miss that metadata.
+        """
+        if not hasattr(self.st_model, "preprocess"):
+            raise ValueError(
+                "Prompt-based instruction training requires "
+                "SentenceTransformer.preprocess(..., prompt=...). Upgrade "
+                "sentence-transformers or use a non-prompt instruction format."
+            )
+        features = self.st_model.preprocess(texts, prompt=prompt)
+        return self._forward_features_with_grad(features)
+
+    def _forward_features_with_grad(self, features: Dict[str, Any]) -> torch.Tensor:
+        """Move tensor features to device and run the underlying ST forward pass."""
         # Newer SentenceTransformer versions may include non-tensor metadata
         # (e.g. a `modality` string). Only move tensors to device.
         features = {
@@ -152,6 +171,48 @@ class ContrastiveTrainer:
         }
         output = self.st_model(features)
         return output["sentence_embedding"]
+
+    def _query_prompts_for_instructions(
+        self,
+        idiom_queries: List["IdiomQuery"],
+    ) -> Optional[List[str]]:
+        """Return per-query prompt strings when zero-shot uses ST's prompt API."""
+        if self.config.mode not in ("instruction_sentence", "instruction_span"):
+            return None
+
+        instructions = resolve_instructions(self.config.model_id, idiom_queries)
+
+        # Qwen/GTE wrappers encode instruction_sentence with `prompt=...`.
+        if hasattr(self.model, "_query_prompt"):
+            return [self.model._query_prompt(instruction) for instruction in instructions]
+
+        fmt = getattr(getattr(self.model, "instruction_format", None), "value", None)
+        if fmt == "prompt_prefix":
+            return instructions
+        return None
+
+    def _encode_instruction_sentence_with_grad(
+        self,
+        plain_texts: List[str],
+        idiom_queries: List["IdiomQuery"],
+    ) -> torch.Tensor:
+        """Encode instruction_sentence queries using the wrapper's zero-shot contract."""
+        prompts = self._query_prompts_for_instructions(idiom_queries)
+        if prompts is None:
+            return self._encode_with_grad(
+                self._format_query_strings(plain_texts, idiom_queries)
+            )
+
+        if len(set(prompts)) == 1:
+            return self._encode_with_prompt_grad(plain_texts, prompts[0])
+
+        return torch.cat(
+            [
+                self._encode_with_prompt_grad([text], prompt)
+                for text, prompt in zip(plain_texts, prompts)
+            ],
+            dim=0,
+        )
 
     def _format_query_strings(
         self,
@@ -196,8 +257,10 @@ class ContrastiveTrainer:
 
         # Query embeddings — per mode
         formatted_queries = self._format_query_strings(queries, iqs)
-        if self.config.mode in ("sentence", "instruction_sentence"):
+        if self.config.mode == "sentence":
             query_emb = self._encode_with_grad(formatted_queries)
+        elif self.config.mode == "instruction_sentence":
+            query_emb = self._encode_instruction_sentence_with_grad(queries, iqs)
         elif self.config.mode in ("span", "instruction_span"):
             query_emb = late_chunk_encode_with_grad(
                 self.model, formatted_queries, query_spans, device=self.device,
