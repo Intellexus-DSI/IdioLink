@@ -1,6 +1,6 @@
 # IdioLink: Retrieving Meaning Beyond Words Across Idiomatic and Literal Expressions
 
-**arXiv 2025** · [[Paper]](https://arxiv.org/abs/2605.22247) · [[Dataset (HuggingFace)](https://huggingface.co/datasets/Intellexus/IdioLink)]
+**EMNLP 2026** · [[Paper]](https://aclanthology.org/2026.emnlp-main.1912/) · [[Dataset (HuggingFace)](https://huggingface.co/datasets/Intellexus/IdioLink)]
 
 A retrieval benchmark evaluating whether embedding models can bridge idiomatic and literal expressions — matching queries to documents that share the same conceptual meaning regardless of figurative vs. literal usage.
 
@@ -322,22 +322,33 @@ If you use IdioLink in your research, please cite:
 **BibTeX:**
 
 ```bibtex
-@misc{hashiloni2026idiolinkretrievingmeaningwords,
-  title={IdioLink: Retrieving Meaning Beyond Words Across Idiomatic and Literal Expressions},
-  author={Kai Golan Hashiloni and Daniel Fadlon and Lior Livyatan and Ofri Hefetz and Jiahuan Pei and Kfir Bar},
-  year={2026},
-  eprint={2605.22247},
-  archivePrefix={arXiv},
-  primaryClass={cs.CL},
-  url={https://arxiv.org/abs/2605.22247},
+@inproceedings{hashiloni-etal-2026-idiolink,
+    title = "{I}dio{L}ink: Retrieving Meaning Beyond Words Across Idiomatic and Literal Expressions",
+    author = "Hashiloni, Kai Golan  and
+      Fadlon, Daniel  and
+      Livyatan, Lior  and
+      Shahar, Ofri Hefetz  and
+      Pei, Jiahuan  and
+      Bar, Kfir",
+    editor = "Lee, Hung-Yi  and
+      Dev, Sunipa  and
+      Li, Jessy  and
+      Elliott, Desmond",
+    booktitle = "Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing",
+    month = oct,
+    year = "2026",
+    address = "Budapest, Hungary",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.emnlp-main.1912/",
+    pages = "43554--43573",
+    ISBN = "979-8-89176-459-0",
+    abstract = "Idioms pose a fundamental challenge for language models, as their meaning cannot be inferred from surface form alone. Understanding such expressions, therefore, requires semantic abstraction beyond lexical overlap. We introduce IdioLink, a retrieval benchmark designed to test whether models can link idiomatic expressions to conceptually equivalent meanings expressed in literal or paraphrased forms. IdioLink comprises 10,700 documents and 2,140 queries, spanning 107 idioms with both literal and figurative uses. Each document and query is annotated with spans that convey the core meaning. Evaluating strong embedding baselines (e.g., BGE, E5, Contriever, and Qwen), we show that current models struggle to retrieve equivalent meanings across divergent surface realizations, relying instead on topical and shallow semantic cues. IdioLink exposes key gaps in idiom-aware semantic retrieval and provides a challenging testbed for future models."
 }
 ```
 
 **APA:**
 
-Hashiloni, K. G., Fadlon, D., Livyatan, L., Hefetz, O., Pei, J., & Bar, K. (2026). *IdioLink: Retrieving meaning beyond words across idiomatic and literal expressions*. arXiv. https://arxiv.org/abs/2605.22247
-
-*Paper under review. Citation will be updated upon publication.*
+Kai Golan Hashiloni, Daniel Fadlon, Lior Livyatan, Ofri Hefetz Shahar, Jiahuan Pei, and Kfir Bar. 2026. [*IdioLink: Retrieving Meaning Beyond Words Across Idiomatic and Literal Expressions*](https://aclanthology.org/2026.emnlp-main.1912/). In Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing, pages 43554–43573, Budapest, Hungary. Association for Computational Linguistics.
 
 ---
 
